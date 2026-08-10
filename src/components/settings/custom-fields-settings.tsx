@@ -22,17 +22,18 @@ export function CustomFieldsSettings() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-foreground">
-          <SlidersHorizontal className="size-4 text-primary" />
-          Custom fields
+        <CardTitle className="text-foreground flex items-center gap-2">
+          <SlidersHorizontal className="text-primary size-4" />
+          Campos personalizados
           <SettingsChip variant="admin" className="font-medium">
             <Shield />
-            Admin
+            Administrador
           </SettingsChip>
         </CardTitle>
         <CardDescription className="text-muted-foreground">
-          Extra contact fields (e.g. ZIP code, lead source). They appear on
-          every contact and in the “Update Contact Field” automation action.
+          Campos extras de contato (por exemplo, CEP, fonte do lead). Eles
+          aparecem em todos os contatos e na ação de automação “Atualizar campo
+          de contato”.
         </CardDescription>
       </CardHeader>
       <CardContent>

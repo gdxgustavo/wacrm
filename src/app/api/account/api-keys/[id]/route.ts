@@ -50,16 +50,16 @@ export async function DELETE(
       .maybeSingle();
 
     if (error) {
-      console.error('[DELETE /api/account/api-keys/[id]] error:', error);
+      console.error('Erro [DELETE /api/account/api-keys/[id]]:', error);
       return NextResponse.json(
-        { error: 'Failed to revoke API key' },
+        { error: 'Falha ao revogar a chave de API' },
         { status: 500 }
       );
     }
     if (!data) {
       // Either no such key in this account, or it was already revoked.
       return NextResponse.json(
-        { error: 'API key not found or already revoked' },
+        { error: 'Chave de API não encontrada ou já revogada' },
         { status: 404 }
       );
     }

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   createContext,
@@ -8,17 +8,17 @@ import {
   useCallback,
   useMemo,
   type ReactNode,
-} from "react";
-import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
-import { DEFAULT_CURRENCY } from "@/lib/currency";
+} from 'react';
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
+import { DEFAULT_CURRENCY } from '@/lib/currency';
 import {
   canEditSettings as canEditSettingsFor,
   canManageMembers as canManageMembersFor,
   canSendMessages as canSendMessagesFor,
   isAccountRole,
   type AccountRole,
-} from "@/lib/auth/roles";
+} from '@/lib/auth/roles';
 
 interface Profile {
   id: string;
@@ -129,15 +129,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfileLoading(true);
     try {
       const { data, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .select(
-          "id, full_name, email, avatar_url, role, beta_features, account_id, account_role",
+          'id, full_name, email, avatar_url, role, beta_features, account_id, account_role'
         )
-        .eq("user_id", userId)
+        .eq('user_id', userId)
         .maybeSingle();
 
       if (error) {
-        console.error("[AuthProvider] fetchProfile error:", {
+        console.error('Erro fetchProfile [AuthProvider]:', {
           message: error.message,
           details: error.details,
           hint: error.hint,
@@ -160,14 +160,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let accountRow: AccountSummary | null = null;
         if (data.account_id) {
           const { data: account, error: accountErr } = await supabase
-            .from("accounts")
+            .from('accounts')
             // default_currency added in migration 021; narrowed to the
             // USD fallback below for older schemas where it reads null.
-            .select("id, name, default_currency")
-            .eq("id", data.account_id)
+            .select('id, name, default_currency')
+            .eq('id', data.account_id)
             .maybeSingle();
           if (accountErr) {
-            console.error("[AuthProvider] fetchAccount error:", {
+            console.error('[AuthProvider] erro fetchAccount:', {
               message: accountErr.message,
               details: accountErr.details,
               hint: accountErr.hint,
@@ -208,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAccount(accountRow);
       }
     } catch (err) {
-      console.error("[AuthProvider] fetchProfile threw:", err);
+      console.error('[AuthProvider] fetchProfile lançou:', err);
     } finally {
       setProfileLoading(false);
     }
@@ -220,7 +220,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const safetyTimer = setTimeout(() => {
       if (mounted) {
-        console.warn("[AuthProvider] getSession() timed out after 3s");
+        console.warn('[AuthProvider] getSession() timed out after 3s');
         setLoading(false);
         setProfileLoading(false);
       }
@@ -233,7 +233,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           error,
         } = await supabase.auth.getSession();
 
-        if (error) console.error("[AuthProvider] getSession error:", error.message);
+        if (error)
+          console.error('Erro de getSession [AuthProvider]:', error.message);
 
         if (!mounted) return;
         const currentUser = session?.user ?? null;
@@ -252,7 +253,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setProfileLoading(false);
         }
       } catch (err) {
-        console.error("[AuthProvider] init threw:", err);
+        console.error('[AuthProvider] init lançou:', err);
       } finally {
         if (mounted) setLoading(false);
         clearTimeout(safetyTimer);
@@ -292,7 +293,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setProfile(null);
     setAccount(null);
-    window.location.href = "/login";
+    window.location.href = '/login';
   }, []);
 
   const refreshProfile = useCallback(async () => {
@@ -309,10 +310,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return {
       accountRole: role,
       accountId: profile?.account_id ?? null,
-      isOwner: role === "owner",
-      isAdmin: role === "admin",
-      isAgent: role === "agent",
-      isViewer: role === "viewer",
+      isOwner: role === 'owner',
+      isAdmin: role === 'admin',
+      isAgent: role === 'agent',
+      isViewer: role === 'viewer',
       canManageMembers: role ? canManageMembersFor(role) : false,
       canEditSettings: role ? canEditSettingsFor(role) : false,
       canSendMessages: role ? canSendMessagesFor(role) : false,
@@ -355,7 +356,7 @@ export function useAuth(): AuthContextValue {
       loading: false,
       profileLoading: false,
       signOut: async () => {
-        window.location.href = "/login";
+        window.location.href = '/login';
       },
       refreshProfile: async () => {},
       account: null,

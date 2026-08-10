@@ -41,7 +41,7 @@ export async function findActiveKeyByHash(
     .maybeSingle();
 
   if (error) {
-    console.error('[api-keys/store] lookup error:', error.message);
+    console.error('Erro de pesquisa [api-keys/store]:', error.message);
     return null;
   }
   if (!data) return null;

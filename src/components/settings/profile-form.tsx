@@ -9,11 +9,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { SettingsPanelHead } from './settings-panel-head';
 
@@ -58,9 +54,9 @@ export function ProfileForm() {
   }, [previewUrl]);
 
   const currentAvatar =
-    previewUrl ?? (!removeAvatar ? profile?.avatar_url ?? null : null);
+    previewUrl ?? (!removeAvatar ? (profile?.avatar_url ?? null) : null);
 
-  const initial = (fullName || profile?.full_name || profile?.email || 'U')
+  const initial = (fullName || profile?.full_name || profile?.email || 'Você')
     .charAt(0)
     .toUpperCase();
 
@@ -70,14 +66,14 @@ export function ProfileForm() {
     if (!file) return;
 
     if (!ALLOWED_MIME.has(file.type)) {
-      toast.error('Unsupported image type', {
-        description: 'Use PNG, JPG, WebP, or GIF.',
+      toast.error('Tipo de imagem não compatível', {
+        description: 'Use PNG, JPG, WebP ou GIF.',
       });
       return;
     }
     if (file.size > MAX_AVATAR_BYTES) {
-      toast.error('Image is too large', {
-        description: 'Maximum 2 MB.',
+      toast.error('A imagem é muito grande', {
+        description: 'Máximo 2 MB.',
       });
       return;
     }
@@ -101,12 +97,12 @@ export function ProfileForm() {
 
     const trimmedName = fullName.trim();
     if (!trimmedName) {
-      toast.error('Display name is required');
+      toast.error('O nome de exibição é obrigatório');
       return;
     }
     const trimmedEmail = email.trim();
     if (!EMAIL_RE.test(trimmedEmail)) {
-      toast.error('Enter a valid email address');
+      toast.error('Insira um endereço de e-mail válido');
       return;
     }
 
@@ -116,8 +112,7 @@ export function ProfileForm() {
 
       // Upload a newly-staged image, if any.
       if (pendingAvatar) {
-        const ext =
-          pendingAvatar.name.split('.').pop()?.toLowerCase() || 'png';
+        const ext = pendingAvatar.name.split('.').pop()?.toLowerCase() || 'png';
         const path = `${user.id}/avatar-${Date.now()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from('avatars')
@@ -161,7 +156,7 @@ export function ProfileForm() {
         });
         if (emailError) {
           // Partial success: name/avatar saved but email didn't.
-          toast.success('Profile saved');
+          toast.success('Perfil salvo');
           toast.error(`Email change failed: ${emailError.message}`);
           setSaving(false);
           await refreshProfile();
@@ -178,11 +173,11 @@ export function ProfileForm() {
 
       toast.success(
         emailSent
-          ? 'Profile saved — check your email to confirm the address change'
-          : 'Profile saved',
+          ? 'Perfil salvo – verifique seu e-mail para confirmar a alteração de endereço'
+          : 'Perfil salvo'
       );
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
+      const msg = err instanceof Error ? err.message : 'Erro desconhecido';
       toast.error(msg);
     } finally {
       setSaving(false);
@@ -197,7 +192,7 @@ export function ProfileForm() {
       removeAvatar);
 
   const joined = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString(undefined, {
+    ? new Date(user.created_at).toLocaleDateString('pt-BR', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -205,134 +200,134 @@ export function ProfileForm() {
     : '—';
 
   return (
-    <section className="max-w-2xl animate-in fade-in-50 duration-200">
+    <section className="animate-in fade-in-50 max-w-2xl duration-200">
       <SettingsPanelHead
-        title="Your profile"
-        description="How you show up across the app. Your avatar and name appear in the header, sidebar, and anywhere your teammates see you."
+        title="Seu perfil"
+        description="Como você aparece no aplicativo. Seu avatar e nome aparecem no cabeçalho, na barra lateral e em qualquer lugar que seus colegas de equipe vejam você."
       />
       <form onSubmit={onSubmit} className="space-y-4">
         <Card>
           <CardContent className="space-y-6">
-          {/* Avatar row */}
-          <div className="flex flex-wrap items-center gap-5">
-            <Avatar size="lg" className="size-16">
-              {currentAvatar ? (
-                <AvatarImage src={currentAvatar} alt={fullName || 'Avatar'} />
-              ) : null}
-              <AvatarFallback className="bg-primary/10 text-base text-primary">
-                {initial}
-              </AvatarFallback>
-            </Avatar>
+            {/* Avatar row */}
+            <div className="flex flex-wrap items-center gap-5">
+              <Avatar size="lg" className="size-16">
+                {currentAvatar ? (
+                  <AvatarImage src={currentAvatar} alt={fullName || 'avatar'} />
+                ) : null}
+                <AvatarFallback className="bg-primary/10 text-primary text-base">
+                  {initial}
+                </AvatarFallback>
+              </Avatar>
 
-            <div className="flex flex-wrap gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                className="hidden"
-                onChange={onPickFile}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={saving}
-              >
-                <Upload className="size-4" />
-                {currentAvatar ? 'Change photo' : 'Upload photo'}
-              </Button>
-              {currentAvatar && (
+              <div className="flex flex-wrap gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={onPickFile}
+                />
                 <Button
                   type="button"
-                  variant="ghost"
-                  onClick={onRemoveAvatar}
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
                   disabled={saving}
-                  className="text-muted-foreground hover:text-foreground"
                 >
-                  <Trash2 className="size-4" />
-                  Remove
+                  <Upload className="size-4" />
+                  {currentAvatar ? 'Alterar foto' : 'Carregar foto'}
                 </Button>
-              )}
-              <p className="w-full text-xs text-muted-foreground">
-                PNG, JPG, WebP, or GIF. Up to 2 MB.
-              </p>
+                {currentAvatar && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={onRemoveAvatar}
+                    disabled={saving}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Trash2 className="size-4" />
+                    Remover
+                  </Button>
+                )}
+                <p className="text-muted-foreground w-full text-xs">
+                  PNG, JPG, WebP ou GIF. Até 2 MB.
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Name */}
-          <div className="space-y-2">
-            <Label htmlFor="profile-full-name" className="text-foreground">
-              Display name
-            </Label>
-            <Input
-              id="profile-full-name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Ada Lovelace"
-              maxLength={120}
-              disabled={saving}
-              required
-            />
-          </div>
+            {/* Name */}
+            <div className="space-y-2">
+              <Label htmlFor="profile-full-name" className="text-foreground">
+                Nome de exibição
+              </Label>
+              <Input
+                id="profile-full-name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Ada Lovelace"
+                maxLength={120}
+                disabled={saving}
+                required
+              />
+            </div>
 
-          {/* Email */}
-          <div className="space-y-2">
-            <Label htmlFor="profile-email" className="text-foreground">
-              Email
-            </Label>
-            <Input
-              id="profile-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={saving}
-              required
-            />
-            {emailChangePending && (
-              <p className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-                <Mail className="mt-0.5 size-3.5 shrink-0" />
-                <span>
-                  Check the inbox for <strong>{profile?.email}</strong> and{' '}
-                  <strong>{email}</strong> — both need to confirm before the
-                  change takes effect.
-                </span>
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="profile-email" className="text-foreground">
+                E-mail
+              </Label>
+              <Input
+                id="profile-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={saving}
+                required
+              />
+              {emailChangePending && (
+                <p className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+                  <Mail className="mt-0.5 size-3.5 shrink-0" />
+                  <span>
+                    Verifique a caixa de entrada para{' '}
+                    <strong>{profile?.email}</strong> and{' '}
+                    <strong>{email}</strong> – ambos precisam ser confirmados
+                    antes que a alteração entre em vigor.
+                  </span>
+                </p>
+              )}
+            </div>
+
+            {/* Read-only block */}
+            <div className="border-border bg-muted rounded-lg border p-4">
+              <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
+                Detalhes da conta
+              </p>
+              <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="text-muted-foreground">Papel</dt>
+                  <dd className="text-foreground mt-0.5 font-mono">
+                    {profile?.role ?? 'user'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Ingressou</dt>
+                  <dd className="text-foreground mt-0.5">{joined}</dd>
+                </div>
+                <div className="sm:col-span-2">
+                  <dt className="text-muted-foreground">ID do usuário</dt>
+                  <dd className="text-muted-foreground mt-0.5 font-mono text-xs break-all">
+                    {user?.id ?? '—'}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            {!profile && (
+              <p className="text-muted-foreground flex items-center gap-2 text-sm">
+                <CircleAlert className="size-4" />
+                Carregando seu perfil…
               </p>
             )}
-          </div>
-
-          {/* Read-only block */}
-          <div className="rounded-lg border border-border bg-muted p-4">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Account details
-            </p>
-            <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="text-muted-foreground">Role</dt>
-                <dd className="mt-0.5 font-mono text-foreground">
-                  {profile?.role ?? 'user'}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Joined</dt>
-                <dd className="mt-0.5 text-foreground">{joined}</dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-muted-foreground">User ID</dt>
-                <dd className="mt-0.5 break-all font-mono text-xs text-muted-foreground">
-                  {user?.id ?? '—'}
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          {!profile && (
-            <p className="flex items-center gap-2 text-sm text-muted-foreground">
-              <CircleAlert className="size-4" />
-              Loading your profile…
-            </p>
-          )}
-
-        </CardContent>
+          </CardContent>
         </Card>
 
         <div className="flex justify-end">
@@ -340,10 +335,10 @@ export function ProfileForm() {
             {saving ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Saving…
+                Salvando…
               </>
             ) : (
-              'Save changes'
+              'Salvar alterações'
             )}
           </Button>
         </div>

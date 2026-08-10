@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { cn } from "@/lib/utils";
-import type { Conversation, ConversationStatus } from "@/types";
-import { Search, ChevronDown } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
+import type { Conversation, ConversationStatus } from '@/types';
+import { Search, ChevronDown } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ConversationListProps {
   activeConversationId: string | null;
@@ -31,19 +31,19 @@ interface ConversationListProps {
 }
 
 const STATUS_COLORS: Record<ConversationStatus, string> = {
-  open: "bg-primary",
-  pending: "bg-amber-500",
-  closed: "bg-muted-foreground",
+  open: 'bg-primary',
+  pending: 'bg-amber-500',
+  closed: 'bg-muted-foreground',
 };
 
-type InboxFilter = ConversationStatus | "all" | "unread";
+type InboxFilter = ConversationStatus | 'all' | 'unread';
 
 const FILTER_OPTIONS: { label: string; value: InboxFilter }[] = [
-  { label: "All", value: "all" },
-  { label: "Unread", value: "unread" },
-  { label: "Open", value: "open" },
-  { label: "Pending", value: "pending" },
-  { label: "Closed", value: "closed" },
+  { label: 'Todos', value: 'all' },
+  { label: 'Não lido', value: 'unread' },
+  { label: 'Abrir', value: 'open' },
+  { label: 'Pendente', value: 'pending' },
+  { label: 'Fechado', value: 'closed' },
 ];
 
 export function ConversationList({
@@ -53,8 +53,8 @@ export function ConversationList({
   onConversationsLoaded,
   resyncToken = 0,
 }: ConversationListProps) {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<InboxFilter>("all");
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<InboxFilter>('all');
   const [loading, setLoading] = useState(true);
 
   // Keep the latest callback in a ref so the fetch effect below can
@@ -80,15 +80,15 @@ export function ConversationList({
 
     (async () => {
       const { data, error } = await supabase
-        .from("conversations")
-        .select("*, contact:contacts(*)")
-        .order("last_message_at", { ascending: false });
+        .from('conversations')
+        .select('*, contact:contacts(*)')
+        .order('last_message_at', { ascending: false });
 
       if (cancelled) return;
 
       if (error) {
         // Supabase errors have non-enumerable properties — log fields explicitly
-        console.error("Failed to fetch conversations:", {
+        console.error('Falha ao buscar conversas:', {
           message: error.message,
           details: error.details,
           hint: error.hint,
@@ -113,18 +113,18 @@ export function ConversationList({
   const filtered = useMemo(() => {
     let result = conversations;
 
-    if (filter === "unread") {
+    if (filter === 'unread') {
       result = result.filter((c) => c.unread_count > 0);
-    } else if (filter !== "all") {
+    } else if (filter !== 'all') {
       result = result.filter((c) => c.status === filter);
     }
 
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter((c) => {
-        const name = c.contact?.name?.toLowerCase() ?? "";
-        const phone = c.contact?.phone?.toLowerCase() ?? "";
-        const lastMsg = c.last_message_text?.toLowerCase() ?? "";
+        const name = c.contact?.name?.toLowerCase() ?? '';
+        const phone = c.contact?.phone?.toLowerCase() ?? '';
+        const lastMsg = c.last_message_text?.toLowerCase() ?? '';
         return name.includes(q) || phone.includes(q) || lastMsg.includes(q);
       });
     }
@@ -152,23 +152,23 @@ export function ConversationList({
     // w-full on mobile so the list occupies the whole viewport when it's
     // the single pane showing; fixed 320px on desktop where it shares the
     // row with the thread + contact sidebar.
-    <div className="flex h-full w-full flex-col border-r border-border bg-card lg:w-80">
+    <div className="border-border bg-card flex h-full w-full flex-col border-r lg:w-80">
       {/* Search + Filter */}
-      <div className="space-y-2 border-b border-border p-3">
+      <div className="border-border space-y-2 border-b p-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             value={search}
             onChange={handleSearchChange}
-            placeholder="Search conversations..."
-            className="border-border bg-muted pl-9 text-sm text-foreground placeholder-muted-foreground focus:border-primary/50"
+            placeholder="Pesquisar conversas..."
+            className="border-border bg-muted text-foreground placeholder-muted-foreground focus:border-primary/50 pl-9 text-sm"
           />
         </div>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex items-center justify-center h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground rounded-md hover:bg-muted">
-              {activeFilter?.label ?? "All"}
-              <ChevronDown className="h-3 w-3" />
+          <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground hover:bg-muted inline-flex h-7 items-center justify-center gap-1 rounded-md px-2 text-xs">
+            {activeFilter?.label ?? 'Todos'}
+            <ChevronDown className="h-3 w-3" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
@@ -179,10 +179,10 @@ export function ConversationList({
                 key={opt.value}
                 onClick={() => setFilter(opt.value)}
                 className={cn(
-                  "text-sm",
+                  'text-sm',
                   filter === opt.value
-                    ? "text-primary"
-                    : "text-popover-foreground"
+                    ? 'text-primary'
+                    : 'text-popover-foreground'
                 )}
               >
                 {opt.label}
@@ -201,11 +201,13 @@ export function ConversationList({
       <ScrollArea className="min-h-0 flex-1">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <div className="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="px-4 py-12 text-center">
-            <p className="text-sm text-muted-foreground">No conversations found</p>
+            <p className="text-muted-foreground text-sm">
+              Nenhuma conversa encontrada
+            </p>
           </div>
         ) : (
           <div className="flex flex-col">
@@ -236,7 +238,7 @@ function ConversationItem({
   onSelect,
 }: ConversationItemProps) {
   const contact = conversation.contact;
-  const displayName = contact?.name || contact?.phone || "Unknown";
+  const displayName = contact?.name || contact?.phone || 'Desconhecido';
   const initials = displayName.charAt(0).toUpperCase();
 
   const handleClick = useCallback(() => {
@@ -247,18 +249,18 @@ function ConversationItem({
     ? formatDistanceToNow(new Date(conversation.last_message_at), {
         addSuffix: false,
       })
-    : "";
+    : '';
 
   return (
     <button
       onClick={handleClick}
       className={cn(
-        "flex w-full items-start gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/50",
-        isActive && "border-l-2 border-primary bg-muted/70"
+        'hover:bg-muted/50 flex w-full items-start gap-3 px-3 py-3 text-left transition-colors',
+        isActive && 'border-primary bg-muted/70 border-l-2'
       )}
     >
       {/* Avatar */}
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+      <div className="bg-muted text-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium">
         {contact?.avatar_url ? (
           <img
             src={contact.avatar_url}
@@ -273,24 +275,26 @@ function ConversationItem({
       {/* Content */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm font-medium text-foreground">
+          <span className="text-foreground truncate text-sm font-medium">
             {displayName}
           </span>
-          <span className="shrink-0 text-[10px] text-muted-foreground">{timeAgo}</span>
+          <span className="text-muted-foreground shrink-0 text-[10px]">
+            {timeAgo}
+          </span>
         </div>
         <div className="mt-0.5 flex items-center justify-between gap-2">
-          <p className="truncate text-xs text-muted-foreground">
-            {conversation.last_message_text || "No messages yet"}
+          <p className="text-muted-foreground truncate text-xs">
+            {conversation.last_message_text || 'Nenhuma mensagem ainda'}
           </p>
           <div className="flex shrink-0 items-center gap-1.5">
             {conversation.unread_count > 0 && (
-              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+              <span className="bg-primary text-primary-foreground flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold">
                 {conversation.unread_count}
               </span>
             )}
             <span
               className={cn(
-                "h-2 w-2 rounded-full",
+                'h-2 w-2 rounded-full',
                 STATUS_COLORS[conversation.status]
               )}
               title={conversation.status}

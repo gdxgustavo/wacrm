@@ -58,9 +58,10 @@ export function ContactForm({
   // hard-blocks the save; a fuzzy trunk-variant match only warns. The
   // DB unique index (migration 022) is the real backstop — this is the
   // friendly heads-up before we get there.
-  const [dupMatch, setDupMatch] = useState<
-    { contact: ExistingContact; exact: boolean } | null
-  >(null);
+  const [dupMatch, setDupMatch] = useState<{
+    contact: ExistingContact;
+    exact: boolean;
+  } | null>(null);
   const [checkingDup, setCheckingDup] = useState(false);
 
   const [tags, setTags] = useState<Tag[]>([]);
@@ -94,7 +95,7 @@ export function ContactForm({
       setDupMatch(
         existing
           ? { contact: existing, exact: isExactMatch(existing, value) }
-          : null,
+          : null
       );
     } finally {
       setCheckingDup(false);
@@ -103,10 +104,7 @@ export function ContactForm({
 
   async function fetchTags() {
     setLoadingTags(true);
-    const { data } = await supabase
-      .from('tags')
-      .select('*')
-      .order('name');
+    const { data } = await supabase.from('tags').select('*').order('name');
     if (data) setTags(data);
     setLoadingTags(false);
   }
@@ -123,14 +121,14 @@ export function ContactForm({
     e.preventDefault();
 
     if (!phone.trim()) {
-      toast.error('Phone number is required');
+      toast.error('O número de telefone é obrigatório');
       return;
     }
 
     // Hard-block an exact duplicate on create (the DB unique index is
     // the real backstop; this avoids a round-trip + a raw error toast).
     if (!isEdit && dupMatch?.exact) {
-      toast.error('A contact with this phone number already exists');
+      toast.error('Já existe um contato com este número de telefone');
       return;
     }
 
@@ -141,8 +139,9 @@ export function ContactForm({
         data: { session },
       } = await supabase.auth.getSession();
       const user = session?.user;
-      if (!user) throw new Error('Not authenticated');
-      if (!accountId) throw new Error('Your profile is not linked to an account.');
+      if (!user) throw new Error('Não autenticado');
+      if (!accountId)
+        throw new Error('Seu perfil não está vinculado a uma conta.');
 
       let contactId = contact?.id;
 
@@ -194,7 +193,7 @@ export function ContactForm({
         }
       }
 
-      toast.success(isEdit ? 'Contact updated' : 'Contact created');
+      toast.success(isEdit ? 'Contato atualizado' : 'Contato criado');
       onOpenChange(false);
       onSaved();
     } catch (err: unknown) {
@@ -203,18 +202,19 @@ export function ContactForm({
       // normalizes equal). Surface it as the friendly duplicate notice
       // and, for new contacts, point the user at the existing record.
       if (isUniqueViolation(err)) {
-        toast.error('A contact with this phone number already exists');
+        toast.error('Já existe um contato com este número de telefone');
         if (!isEdit && accountId) {
           const existing = await findExistingContact(
             supabase,
             accountId,
-            phone.trim(),
+            phone.trim()
           );
           if (existing) setDupMatch({ contact: existing, exact: true });
         }
         return;
       }
-      const message = err instanceof Error ? err.message : 'Failed to save contact';
+      const message =
+        err instanceof Error ? err.message : 'Falha ao salvar contato';
       toast.error(message);
     } finally {
       setSaving(false);
@@ -226,19 +226,19 @@ export function ContactForm({
       <DialogContent className="bg-popover border-border text-popover-foreground sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-popover-foreground">
-            {isEdit ? 'Edit Contact' : 'Add Contact'}
+            {isEdit ? 'Editar contato' : 'Adicionar contato'}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
             {isEdit
-              ? 'Update the contact details below.'
-              : 'Fill in the details to create a new contact.'}
+              ? 'Atualize os detalhes de contato abaixo.'
+              : 'Preencha os dados para criar um novo contato.'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="cf-name" className="text-muted-foreground">
-              Name
+              Nome
             </Label>
             <Input
               id="cf-name"
@@ -251,7 +251,7 @@ export function ContactForm({
 
           <div className="space-y-2">
             <Label htmlFor="cf-phone" className="text-muted-foreground">
-              Phone <span className="text-red-400">*</span>
+              Telefone <span className="text-red-400">*</span>
             </Label>
             <Input
               id="cf-phone"
@@ -276,8 +276,8 @@ export function ContactForm({
                 <div className="space-y-1">
                   <p>
                     {dupMatch.exact
-                      ? 'A contact with this phone number already exists.'
-                      : 'A contact with a very similar number already exists.'}
+                      ? 'Já existe um contato com este número de telefone.'
+                      : 'Já existe um contato com um número muito semelhante.'}
                   </p>
                   {onViewExisting && (
                     <button
@@ -285,35 +285,36 @@ export function ContactForm({
                       onClick={() => onViewExisting(dupMatch.contact.id)}
                       className="font-medium underline underline-offset-2 hover:no-underline"
                     >
-                      View {dupMatch.contact.name || dupMatch.contact.phone}
+                      Visualizar{' '}
+                      {dupMatch.contact.name || dupMatch.contact.phone}
                     </button>
                   )}
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">
-                Include country code, e.g. +1 for US
+              <p className="text-muted-foreground text-xs">
+                Incluir o código do país, por ex. +1 para os EUA
               </p>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="cf-email" className="text-muted-foreground">
-              Email
+              E-mail
             </Label>
             <Input
               id="cf-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@example.com"
+              placeholder="john@exemplo.com"
               className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="cf-company" className="text-muted-foreground">
-              Company
+              Empresa
             </Label>
             <Input
               id="cf-company"
@@ -325,15 +326,15 @@ export function ContactForm({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-muted-foreground">Tags</Label>
+            <Label className="text-muted-foreground">Etiquetas</Label>
             {loadingTags ? (
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm">
                 <Loader2 className="size-3 animate-spin" />
-                Loading tags...
+                Carregando etiquetas...
               </div>
             ) : tags.length === 0 ? (
-              <p className="text-xs text-muted-foreground">
-                No tags available. Create tags in Settings.
+              <p className="text-muted-foreground text-xs">
+                Nenhuma etiqueta disponível. Crie tags em Configurações.
               </p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
@@ -344,9 +345,9 @@ export function ContactForm({
                       key={tag.id}
                       type="button"
                       onClick={() => toggleTag(tag.id)}
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer ${
+                      className={`inline-flex cursor-pointer items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
                         selected
-                          ? 'ring-2 ring-primary ring-offset-1 ring-offset-border'
+                          ? 'ring-primary ring-offset-border ring-2 ring-offset-1'
                           : 'opacity-60 hover:opacity-100'
                       }`}
                       style={{
@@ -370,7 +371,7 @@ export function ContactForm({
               onClick={() => onOpenChange(false)}
               className="border-border text-muted-foreground hover:bg-muted"
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               type="submit"
@@ -378,7 +379,7 @@ export function ContactForm({
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {saving && <Loader2 className="size-4 animate-spin" />}
-              {isEdit ? 'Update' : 'Create'}
+              {isEdit ? 'Atualizar' : 'Criar'}
             </Button>
           </DialogFooter>
         </form>

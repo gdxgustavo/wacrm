@@ -144,7 +144,7 @@ export default function ContactsPage() {
       });
       if (seq !== fetchSeq.current) return; // superseded by a newer fetch
       if (error) {
-        toast.error('Failed to load contacts');
+        toast.error('Falha ao carregar contatos');
         setLoading(false);
         return;
       }
@@ -160,13 +160,15 @@ export default function ContactsPage() {
 
       if (term) {
         const like = `%${term}%`;
-        query = query.or(`name.ilike.${like},phone.ilike.${like},email.ilike.${like}`);
+        query = query.or(
+          `name.ilike.${like},phone.ilike.${like},email.ilike.${like}`
+        );
       }
 
       const { data, count: exactCount, error } = await query;
       if (seq !== fetchSeq.current) return; // superseded by a newer fetch
       if (error) {
-        toast.error('Failed to load contacts');
+        toast.error('Falha ao carregar contatos');
         setLoading(false);
         return;
       }
@@ -257,9 +259,9 @@ export default function ContactsPage() {
       .eq('id', deleteTarget.id);
 
     if (error) {
-      toast.error('Failed to delete contact');
+      toast.error('Falha ao excluir contato');
     } else {
-      toast.success('Contact deleted');
+      toast.success('Contato excluído');
       fetchContacts();
     }
 
@@ -301,9 +303,11 @@ export default function ContactsPage() {
     const { error } = await supabase.from('contacts').delete().in('id', ids);
 
     if (error) {
-      toast.error('Failed to delete contacts');
+      toast.error('Falha ao excluir contatos');
     } else {
-      toast.success(`${ids.length} contact${ids.length === 1 ? '' : 's'} deleted`);
+      toast.success(
+        `${ids.length} contact${ids.length === 1 ? '' : 's'} deleted`
+      );
       setSelected(new Set());
       fetchContacts();
     }
@@ -321,7 +325,8 @@ export default function ContactsPage() {
   const allTags = Object.values(tagsMap).sort((a, b) =>
     a.name.localeCompare(b.name)
   );
-  const hasActiveFilters = search.trim().length > 0 || selectedTagIds.length > 0;
+  const hasActiveFilters =
+    search.trim().length > 0 || selectedTagIds.length > 0;
 
   function toggleTagFilter(tagId: string) {
     setSelectedTagIds((prev) =>
@@ -340,11 +345,12 @@ export default function ContactsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Contacts</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage your contact list. {totalCount > 0 && `${totalCount} total contacts.`}
+          <h1 className="text-foreground text-2xl font-bold">Contatos</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Gerencie sua lista de contatos.{' '}
+            {totalCount > 0 && `${totalCount} total contacts.`}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -355,36 +361,36 @@ export default function ContactsPage() {
               className="border-border text-muted-foreground hover:bg-muted"
             >
               <SlidersHorizontal className="size-4" />
-              Custom fields
+              Campos personalizados
             </Button>
           )}
           <GatedButton
             variant="outline"
             canAct={canEdit}
-            gateReason="add or import contacts"
+            gateReason="adicionar ou importar contatos"
             onClick={() => setImportOpen(true)}
             className="border-border text-muted-foreground hover:bg-muted"
           >
             <Upload className="size-4" />
-            Import
+            Importar
           </GatedButton>
           <GatedButton
             canAct={canEdit}
-            gateReason="add or import contacts"
+            gateReason="adicionar ou importar contatos"
             onClick={openAddForm}
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Plus className="size-4" />
-            Add Contact
+            Adicionar contato
           </GatedButton>
         </div>
       </div>
 
       {/* Search + tag filter */}
       <div className="space-y-2">
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
             <Input
               value={search}
               onChange={(e) => {
@@ -393,8 +399,8 @@ export default function ContactsPage() {
                 // set shrinks/grows, page N may no longer be valid.
                 setPage(0);
               }}
-              placeholder="Search by name, phone, or email..."
-              className="pl-8 bg-card border-border text-foreground placeholder:text-muted-foreground"
+              placeholder="Pesquise por nome, telefone ou e-mail..."
+              className="bg-card border-border text-foreground placeholder:text-muted-foreground pl-8"
             />
           </div>
 
@@ -408,37 +414,37 @@ export default function ContactsPage() {
               }
             >
               <Filter className="size-4" />
-              Filter by tags
+              Filtrar por tags
               {selectedTagIds.length > 0 && (
-                <span className="ml-1 inline-flex items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">
+                <span className="bg-primary text-primary-foreground ml-1 inline-flex items-center justify-center rounded-full px-1.5 text-[10px] font-semibold">
                   {selectedTagIds.length}
                 </span>
               )}
             </PopoverTrigger>
             <PopoverContent align="start" className="w-64 p-0">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-                <span className="text-sm font-medium text-popover-foreground">
-                  Filter by tags
+              <div className="border-border flex items-center justify-between border-b px-3 py-2">
+                <span className="text-popover-foreground text-sm font-medium">
+                  Filtrar por tags
                 </span>
                 {selectedTagIds.length > 0 && (
                   <button
                     onClick={clearTagFilters}
-                    className="text-xs text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground text-xs"
                   >
-                    Clear all
+                    Limpar tudo
                   </button>
                 )}
               </div>
               {allTags.length === 0 ? (
-                <p className="px-3 py-4 text-sm text-muted-foreground text-center">
-                  No tags yet.
+                <p className="text-muted-foreground px-3 py-4 text-center text-sm">
+                  Ainda não há tags.
                 </p>
               ) : (
                 <div className="max-h-64 overflow-y-auto py-1">
                   {allTags.map((tag) => (
                     <label
                       key={tag.id}
-                      className="flex items-center gap-2.5 px-3 py-1.5 cursor-pointer hover:bg-muted/50"
+                      className="hover:bg-muted/50 flex cursor-pointer items-center gap-2.5 px-3 py-1.5"
                     >
                       <Checkbox
                         checked={selectedTagIds.includes(tag.id)}
@@ -449,7 +455,7 @@ export default function ContactsPage() {
                         className="size-2.5 shrink-0 rounded-full"
                         style={{ backgroundColor: tag.color }}
                       />
-                      <span className="text-sm text-popover-foreground truncate">
+                      <span className="text-popover-foreground truncate text-sm">
                         {tag.name}
                       </span>
                     </label>
@@ -488,9 +494,9 @@ export default function ContactsPage() {
             })}
             <button
               onClick={clearTagFilters}
-              className="text-xs text-muted-foreground hover:text-foreground px-1"
+              className="text-muted-foreground hover:text-foreground px-1 text-xs"
             >
-              Clear all
+              Limpar tudo
             </button>
           </div>
         )}
@@ -498,8 +504,8 @@ export default function ContactsPage() {
 
       {/* Bulk action bar */}
       {selected.size > 0 && (
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-muted/40 px-4 py-2">
-          <p className="text-sm text-foreground">
+        <div className="border-border bg-muted/40 flex items-center justify-between gap-4 rounded-lg border px-4 py-2">
+          <p className="text-foreground text-sm">
             <span className="font-medium">{selected.size}</span>{' '}
             {selected.size === 1 ? 'contact' : 'contacts'} selected
           </p>
@@ -510,24 +516,24 @@ export default function ContactsPage() {
               onClick={() => setSelected(new Set())}
               className="text-muted-foreground hover:text-foreground"
             >
-              Clear
+              Claro
             </Button>
             <GatedButton
               variant="destructive"
               size="sm"
               canAct={canEdit}
-              gateReason="delete contacts"
+              gateReason="excluir contatos"
               onClick={() => setBulkDeleteOpen(true)}
             >
               <Trash2 className="size-4" />
-              Delete selected
+              Excluir selecionado
             </GatedButton>
           </div>
         </div>
       )}
 
       {/* Table */}
-      <div className="rounded-lg border border-border overflow-hidden">
+      <div className="border-border overflow-hidden rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
@@ -537,47 +543,57 @@ export default function ContactsPage() {
                   indeterminate={!allOnPageSelected && someOnPageSelected}
                   onCheckedChange={toggleSelectAll}
                   disabled={contacts.length === 0}
-                  aria-label="Select all contacts on this page"
+                  aria-label="Selecione todos os contatos nesta página"
                 />
               </TableHead>
-              <TableHead className="text-muted-foreground">Name</TableHead>
-              <TableHead className="text-muted-foreground">Phone</TableHead>
-              <TableHead className="text-muted-foreground hidden md:table-cell">Email</TableHead>
-              <TableHead className="text-muted-foreground hidden lg:table-cell">Company</TableHead>
-              <TableHead className="text-muted-foreground hidden md:table-cell">Tags</TableHead>
-              <TableHead className="text-muted-foreground hidden lg:table-cell">Created</TableHead>
+              <TableHead className="text-muted-foreground">Nome</TableHead>
+              <TableHead className="text-muted-foreground">Telefone</TableHead>
+              <TableHead className="text-muted-foreground hidden md:table-cell">
+                E-mail
+              </TableHead>
+              <TableHead className="text-muted-foreground hidden lg:table-cell">
+                Empresa
+              </TableHead>
+              <TableHead className="text-muted-foreground hidden md:table-cell">
+                Etiquetas
+              </TableHead>
+              <TableHead className="text-muted-foreground hidden lg:table-cell">
+                Criado
+              </TableHead>
               <TableHead className="text-muted-foreground w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow className="border-border">
-                <TableCell colSpan={8} className="text-center py-12">
+                <TableCell colSpan={8} className="py-12 text-center">
                   <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="size-6 animate-spin text-primary" />
-                    <p className="text-sm text-muted-foreground">Loading contacts...</p>
+                    <Loader2 className="text-primary size-6 animate-spin" />
+                    <p className="text-muted-foreground text-sm">
+                      Carregando contatos...
+                    </p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : contacts.length === 0 ? (
               <TableRow className="border-border">
-                <TableCell colSpan={8} className="text-center py-12">
+                <TableCell colSpan={8} className="py-12 text-center">
                   <div className="flex flex-col items-center gap-2">
-                    <Users className="size-8 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
+                    <Users className="text-muted-foreground size-8" />
+                    <p className="text-muted-foreground text-sm">
                       {hasActiveFilters
-                        ? 'No contacts match your filters.'
-                        : 'No contacts yet.'}
+                        ? 'Nenhum contato corresponde aos seus filtros.'
+                        : 'Nenhum contato ainda.'}
                     </p>
                     {!hasActiveFilters && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={openAddForm}
-                        className="mt-2 border-border text-muted-foreground hover:bg-muted"
+                        className="border-border text-muted-foreground hover:bg-muted mt-2"
                       >
                         <Plus className="size-3.5" />
-                        Add your first contact
+                        Adicione seu primeiro contato
                       </Button>
                     )}
                   </div>
@@ -598,16 +614,24 @@ export default function ContactsPage() {
                     />
                   </TableCell>
                   <TableCell className="text-foreground font-medium">
-                    {contact.name || <span className="text-muted-foreground italic">Unnamed</span>}
+                    {contact.name || (
+                      <span className="text-muted-foreground italic">
+                        Sem nome
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground font-mono text-xs">
                     {contact.phone}
                   </TableCell>
-                  <TableCell className="text-muted-foreground hidden md:table-cell text-sm">
-                    {contact.email || <span className="text-muted-foreground">-</span>}
+                  <TableCell className="text-muted-foreground hidden text-sm md:table-cell">
+                    {contact.email || (
+                      <span className="text-muted-foreground">-</span>
+                    )}
                   </TableCell>
-                  <TableCell className="text-muted-foreground hidden lg:table-cell text-sm">
-                    {contact.company || <span className="text-muted-foreground">-</span>}
+                  <TableCell className="text-muted-foreground hidden text-sm lg:table-cell">
+                    {contact.company || (
+                      <span className="text-muted-foreground">-</span>
+                    )}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     <div className="flex flex-wrap gap-1">
@@ -628,14 +652,14 @@ export default function ContactsPage() {
                         <span className="text-muted-foreground text-xs">-</span>
                       )}
                       {contact.tags && contact.tags.length > 3 && (
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-muted-foreground text-[10px]">
                           +{contact.tags.length - 3}
                         </span>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-xs hidden lg:table-cell">
-                    {new Date(contact.created_at).toLocaleDateString('en-US', {
+                  <TableCell className="text-muted-foreground hidden text-xs lg:table-cell">
+                    {new Date(contact.created_at).toLocaleDateString('pt-BR', {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
@@ -667,7 +691,7 @@ export default function ContactsPage() {
                           className="text-popover-foreground focus:bg-muted focus:text-foreground"
                         >
                           <Pencil className="size-4" />
-                          Edit
+                          Editar
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-border" />
                         <DropdownMenuItem
@@ -678,7 +702,7 @@ export default function ContactsPage() {
                           }}
                         >
                           <Trash2 className="size-4" />
-                          Delete
+                          Excluir
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -693,9 +717,9 @@ export default function ContactsPage() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Showing {page * PAGE_SIZE + 1}-{Math.min((page + 1) * PAGE_SIZE, totalCount)} of{' '}
-            {totalCount}
+          <p className="text-muted-foreground text-xs">
+            Mostrando {page * PAGE_SIZE + 1}-
+            {Math.min((page + 1) * PAGE_SIZE, totalCount)} of {totalCount}
           </p>
           <div className="flex items-center gap-1">
             <Button
@@ -707,8 +731,8 @@ export default function ContactsPage() {
             >
               <ChevronLeft className="size-4" />
             </Button>
-            <span className="text-xs text-muted-foreground px-2">
-              Page {page + 1} of {totalPages}
+            <span className="text-muted-foreground px-2 text-xs">
+              Página {page + 1} of {totalPages}
             </span>
             <Button
               variant="outline"
@@ -766,13 +790,15 @@ export default function ContactsPage() {
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="bg-popover border-border text-popover-foreground sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-popover-foreground">Delete Contact</DialogTitle>
+            <DialogTitle className="text-popover-foreground">
+              Excluir contato
+            </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Are you sure you want to delete{' '}
+              Tem certeza de que deseja excluir{' '}
               <span className="text-popover-foreground font-medium">
                 {deleteTarget?.name || deleteTarget?.phone}
               </span>
-              ? This action cannot be undone.
+              ? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="bg-popover border-border">
@@ -781,7 +807,7 @@ export default function ContactsPage() {
               onClick={() => setDeleteConfirmOpen(false)}
               className="border-border text-muted-foreground hover:bg-muted"
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               variant="destructive"
@@ -789,7 +815,7 @@ export default function ContactsPage() {
               disabled={deleting}
             >
               {deleting && <Loader2 className="size-4 animate-spin" />}
-              Delete
+              Excluir
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -800,14 +826,15 @@ export default function ContactsPage() {
         <DialogContent className="bg-popover border-border text-popover-foreground sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-popover-foreground">
-              Delete {selected.size} {selected.size === 1 ? 'Contact' : 'Contacts'}
+              Excluir {selected.size}{' '}
+              {selected.size === 1 ? 'Contato' : 'Contatos'}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Are you sure you want to delete{' '}
+              Tem certeza de que deseja excluir{' '}
               <span className="text-popover-foreground font-medium">
                 {selected.size} {selected.size === 1 ? 'contact' : 'contacts'}
               </span>
-              ? This action cannot be undone.
+              ? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="bg-popover border-border">
@@ -816,7 +843,7 @@ export default function ContactsPage() {
               onClick={() => setBulkDeleteOpen(false)}
               className="border-border text-muted-foreground hover:bg-muted"
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               variant="destructive"
@@ -824,7 +851,7 @@ export default function ContactsPage() {
               disabled={deleting}
             >
               {deleting && <Loader2 className="size-4 animate-spin" />}
-              Delete
+              Excluir
             </Button>
           </DialogFooter>
         </DialogContent>

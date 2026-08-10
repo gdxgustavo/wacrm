@@ -1,48 +1,45 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 import {
   sendTextMessage,
   sendTemplateMessage,
   sendMediaMessage,
   type MediaKind,
-} from '@/lib/whatsapp/meta-api'
-import { decrypt, encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption'
-import { supabaseAdmin } from '@/lib/flows/admin-client'
+} from '@/lib/whatsapp/meta-api';
+import { decrypt, encrypt, isLegacyFormat } from '@/lib/whatsapp/encryption';
+import { supabaseAdmin } from '@/lib/flows/admin-client';
 import {
   sanitizePhoneForMeta,
   isValidE164,
   phoneVariants,
   isRecipientNotAllowedError,
-} from '@/lib/whatsapp/phone-utils'
+} from '@/lib/whatsapp/phone-utils';
 import {
   checkRateLimit,
   rateLimitResponse,
   RATE_LIMITS,
-} from '@/lib/rate-limit'
-import type { MessageTemplate } from '@/types'
-import { isMessageTemplate } from '@/lib/whatsapp/template-row-guard'
+} from '@/lib/rate-limit';
+import type { MessageTemplate } from '@/types';
+import { isMessageTemplate } from '@/lib/whatsapp/template-row-guard';
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = await createClient();
 
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
     // Per-user rate limit. Bucket key is scoped to this route so
     // `/broadcast` has an independent budget.
-    const limit = checkRateLimit(`send:${user.id}`, RATE_LIMITS.send)
+    const limit = checkRateLimit(`send:${user.id}`, RATE_LIMITS.send);
     if (!limit.success) {
-      return rateLimitResponse(limit)
+      return rateLimitResponse(limit);
     }
 
     // Resolve the caller's account_id. Every downstream lookup
@@ -53,16 +50,16 @@ export async function POST(request: Request) {
       .from('profiles')
       .select('account_id')
       .eq('user_id', user.id)
-      .maybeSingle()
-    const accountId = profile?.account_id as string | undefined
+      .maybeSingle();
+    const accountId = profile?.account_id as string | undefined;
     if (!accountId) {
       return NextResponse.json(
-        { error: 'Your profile is not linked to an account.' },
-        { status: 403 },
-      )
+        { error: 'Seu perfil não está vinculado a uma conta.' },
+        { status: 403 }
+      );
     }
 
-    const body = await request.json()
+    const body = await request.json();
     const {
       // `conversation_id` targets an existing thread (inbox). `contact_id`
       // lets a caller initiate from a contact that may have no conversation
@@ -78,52 +75,54 @@ export async function POST(request: Request) {
       template_params,
       template_message_params,
       reply_to_message_id,
-    } = body
+    } = body;
 
     if ((!conversationIdInput && !contact_id) || !message_type) {
       return NextResponse.json(
         {
           error:
-            'Either conversation_id or contact_id, plus message_type, are required',
+            'Conversation_id ou contact_id, além de message_type, são obrigatórios',
         },
         { status: 400 }
-      )
+      );
     }
 
     // Media kinds (image/video/document/audio) are sent to Meta via a
     // public URL the composer already uploaded to the chat-media bucket.
-    const MEDIA_KINDS = ['image', 'video', 'document', 'audio'] as const
-    const isMediaKind = (MEDIA_KINDS as readonly string[]).includes(message_type)
+    const MEDIA_KINDS = ['image', 'video', 'document', 'audio'] as const;
+    const isMediaKind = (MEDIA_KINDS as readonly string[]).includes(
+      message_type
+    );
 
     // Reject anything outside the known set up front rather than letting
     // an unknown type fall through to the text path with empty content.
-    const VALID_MESSAGE_TYPES = ['text', 'template', ...MEDIA_KINDS] as const
+    const VALID_MESSAGE_TYPES = ['text', 'template', ...MEDIA_KINDS] as const;
     if (!(VALID_MESSAGE_TYPES as readonly string[]).includes(message_type)) {
       return NextResponse.json(
         { error: `Unsupported message_type "${message_type}"` },
         { status: 400 }
-      )
+      );
     }
 
     if (message_type === 'text' && !content_text) {
       return NextResponse.json(
-        { error: 'content_text is required for text messages' },
+        { error: 'content_text é obrigatório para mensagens de texto' },
         { status: 400 }
-      )
+      );
     }
 
     if (message_type === 'template' && !template_name) {
       return NextResponse.json(
-        { error: 'template_name is required for template messages' },
+        { error: 'template_name é obrigatório para mensagens de modelo' },
         { status: 400 }
-      )
+      );
     }
 
     if (isMediaKind && !media_url) {
       return NextResponse.json(
         { error: `media_url is required for ${message_type} messages` },
         { status: 400 }
-      )
+      );
     }
 
     // Meta caps media captions at 1024 chars; reject before the upload is
@@ -135,16 +134,19 @@ export async function POST(request: Request) {
       content_text.length > 1024
     ) {
       return NextResponse.json(
-        { error: 'Caption exceeds the 1024-character limit' },
+        { error: 'A legenda excede o limite de 1.024 caracteres' },
         { status: 400 }
-      )
+      );
     }
 
     // Resolve the target conversation. With `conversation_id` we load the
     // existing thread; with `contact_id` we find-or-create one for the
     // contact so a business-initiated template send (Contact detail view)
     // reuses this whole path — phone variants, send-builder, persistence.
-    let conversation: { id: string; contact?: { id: string; phone?: string } | null } | null = null
+    let conversation: {
+      id: string;
+      contact?: { id: string; phone?: string } | null;
+    } | null = null;
 
     if (conversationIdInput) {
       const { data, error: convError } = await supabase
@@ -152,15 +154,15 @@ export async function POST(request: Request) {
         .select('*, contact:contacts(*)')
         .eq('id', conversationIdInput)
         .eq('account_id', accountId)
-        .single()
+        .single();
 
       if (convError || !data) {
         return NextResponse.json(
-          { error: 'Conversation not found' },
+          { error: 'Conversa não encontrada' },
           { status: 404 }
-        )
+        );
       }
-      conversation = data
+      conversation = data;
     } else {
       // contact_id path: verify the contact is in this account first so a
       // caller can't open a conversation against someone else's contact.
@@ -169,13 +171,13 @@ export async function POST(request: Request) {
         .select('*')
         .eq('id', contact_id)
         .eq('account_id', accountId)
-        .maybeSingle()
+        .maybeSingle();
 
       if (contactErr || !contactRow) {
         return NextResponse.json(
-          { error: 'Contact not found' },
+          { error: 'Contato não encontrado' },
           { status: 404 }
-        )
+        );
       }
 
       const resolved = await findOrCreateConversation(
@@ -183,41 +185,41 @@ export async function POST(request: Request) {
         accountId,
         user.id,
         contact_id
-      )
+      );
       if (!resolved) {
         return NextResponse.json(
-          { error: 'Failed to open a conversation for this contact' },
+          { error: 'Falha ao abrir uma conversa para este contato' },
           { status: 500 }
-        )
+        );
       }
       // The embed may not round-trip on insert; pin the contact we verified.
-      conversation = { ...resolved, contact: resolved.contact ?? contactRow }
+      conversation = { ...resolved, contact: resolved.contact ?? contactRow };
     }
 
     if (!conversation) {
       return NextResponse.json(
-        { error: 'Conversation not found' },
+        { error: 'Conversa não encontrada' },
         { status: 404 }
-      )
+      );
     }
 
-    const conversation_id = conversation.id
+    const conversation_id = conversation.id;
 
-    const contact = conversation.contact
+    const contact = conversation.contact;
     if (!contact?.phone) {
       return NextResponse.json(
-        { error: 'Contact phone number not found' },
+        { error: 'Telefone de contato não encontrado' },
         { status: 400 }
-      )
+      );
     }
 
     // Sanitize and validate phone
-    const sanitizedPhone = sanitizePhoneForMeta(contact.phone)
+    const sanitizedPhone = sanitizePhoneForMeta(contact.phone);
     if (!isValidE164(sanitizedPhone)) {
       return NextResponse.json(
-        { error: 'Invalid phone number format' },
+        { error: 'Formato de número de telefone inválido' },
         { status: 400 }
-      )
+      );
     }
 
     // Fetch and decrypt WhatsApp config
@@ -225,16 +227,19 @@ export async function POST(request: Request) {
       .from('whatsapp_config')
       .select('*')
       .eq('account_id', accountId)
-      .single()
+      .single();
 
     if (configError || !config) {
       return NextResponse.json(
-        { error: 'WhatsApp not configured. Please set up your WhatsApp integration first.' },
+        {
+          error:
+            'WhatsApp não configurado. Configure sua integração com o WhatsApp primeiro.',
+        },
         { status: 400 }
-      )
+      );
     }
 
-    const accessToken = decrypt(config.access_token)
+    const accessToken = decrypt(config.access_token);
 
     // Self-heal legacy CBC-encrypted tokens. Fire-and-forget: we
     // return from the send without waiting, so a failed upgrade just
@@ -250,30 +255,30 @@ export async function POST(request: Request) {
           if (error) {
             console.warn(
               '[whatsapp/send] access_token GCM upgrade failed:',
-              error.message,
-            )
+              error.message
+            );
           }
-        })
+        });
     }
 
     // Resolve the reply target (if any) to its Meta message_id, which is
     // what `context.message_id` on the outgoing Meta payload needs. The
     // parent must belong to this same conversation — otherwise a caller
     // could quote messages they can't see by guessing UUIDs.
-    let contextMessageId: string | undefined
+    let contextMessageId: string | undefined;
     if (reply_to_message_id) {
       const { data: parent, error: parentError } = await supabase
         .from('messages')
         .select('message_id, conversation_id')
         .eq('id', reply_to_message_id)
         .eq('conversation_id', conversation_id)
-        .maybeSingle()
+        .maybeSingle();
 
       if (parentError || !parent) {
         return NextResponse.json(
-          { error: 'reply_to_message_id not found in this conversation' },
+          { error: 'respond_to_message_id não encontrado nesta conversa' },
           { status: 400 }
-        )
+        );
       }
       if (!parent.message_id) {
         // Parent never reached Meta (still in 'sending' or 'failed') — we
@@ -281,9 +286,9 @@ export async function POST(request: Request) {
         // dropping the message entirely.
         console.warn(
           '[whatsapp/send] reply target has no Meta message_id; sending without context'
-        )
+        );
       } else {
-        contextMessageId = parent.message_id
+        contextMessageId = parent.message_id;
       }
     }
 
@@ -292,8 +297,8 @@ export async function POST(request: Request) {
     // number was registered with/without a trunk 0). If an alternate
     // format succeeds, we persist it back to the contact row so the
     // next send goes through on the first attempt.
-    let waMessageId = ''
-    let workingPhone = sanitizedPhone
+    let waMessageId = '';
+    let workingPhone = sanitizedPhone;
 
     // For template sends, load the row so sendTemplateMessage can
     // build header + button components from the template definition.
@@ -305,7 +310,7 @@ export async function POST(request: Request) {
     // + button components from the definition. isMessageTemplate
     // guards against a malformed row (e.g. from a partial sync)
     // crashing the send-builder later in the stack.
-    let templateRow: MessageTemplate | null = null
+    let templateRow: MessageTemplate | null = null;
     if (message_type === 'template' && template_name) {
       const { data } = await supabase
         .from('message_templates')
@@ -313,17 +318,17 @@ export async function POST(request: Request) {
         .eq('account_id', accountId)
         .eq('name', template_name)
         .eq('language', template_language || 'en_US')
-        .maybeSingle()
+        .maybeSingle();
       if (data && !isMessageTemplate(data)) {
         return NextResponse.json(
           {
             error:
-              'Template row is malformed locally — run "Sync from Meta" in Settings to repair it.',
+              'A linha do modelo está malformada localmente — execute "Sincronizar com a Meta" em Configurações para repará-la.',
           },
-          { status: 500 },
-        )
+          { status: 500 }
+        );
       }
-      templateRow = data ?? null
+      templateRow = data ?? null;
     }
 
     const attempt = async (phone: string): Promise<string> => {
@@ -340,8 +345,8 @@ export async function POST(request: Request) {
           // messageParams.body isn't set.
           params: template_params || [],
           contextMessageId,
-        })
-        return result.messageId
+        });
+        return result.messageId;
       }
       if (isMediaKind) {
         // content_text doubles as the caption (ignored for audio inside
@@ -356,8 +361,8 @@ export async function POST(request: Request) {
           caption: content_text || undefined,
           filename: filename || undefined,
           contextMessageId,
-        })
-        return result.messageId
+        });
+        return result.messageId;
       }
       const result = await sendTextMessage({
         phoneNumberId: config.phone_number_id,
@@ -365,41 +370,47 @@ export async function POST(request: Request) {
         to: phone,
         text: content_text,
         contextMessageId,
-      })
-      return result.messageId
-    }
+      });
+      return result.messageId;
+    };
 
     try {
-      const variants = phoneVariants(sanitizedPhone)
-      let lastError: unknown = null
+      const variants = phoneVariants(sanitizedPhone);
+      let lastError: unknown = null;
 
       for (const variant of variants) {
         try {
-          waMessageId = await attempt(variant)
-          workingPhone = variant
-          lastError = null
-          break
+          waMessageId = await attempt(variant);
+          workingPhone = variant;
+          lastError = null;
+          break;
         } catch (err) {
-          const message = err instanceof Error ? err.message : String(err)
+          const message = err instanceof Error ? err.message : String(err);
           // Only retry when the failure is specifically that the
           // recipient isn't in Meta's allowed list. Any other error
           // (bad token, invalid template, etc.) bubbles up immediately.
           if (!isRecipientNotAllowedError(message)) {
-            throw err
+            throw err;
           }
-          lastError = err
-          console.warn(`[whatsapp/send] variant "${variant}" rejected by Meta, trying next…`)
+          lastError = err;
+          console.warn(
+            `[whatsapp/send] variant "${variant}" rejected by Meta, trying next…`
+          );
         }
       }
 
-      if (lastError) throw lastError
+      if (lastError) throw lastError;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown Meta API error'
-      console.error('Meta API send failed for all variants:', message)
+      const message =
+        err instanceof Error ? err.message : 'Erro desconhecido da MetaAPI';
+      console.error(
+        'Falha no envio da Meta API para todas as variantes:',
+        message
+      );
       return NextResponse.json(
         { error: `Meta API error: ${message}` },
         { status: 502 }
-      )
+      );
     }
 
     // If a non-original variant succeeded, update the contact so future
@@ -408,11 +419,11 @@ export async function POST(request: Request) {
     if (workingPhone !== sanitizedPhone) {
       console.log(
         `[whatsapp/send] Auto-corrected contact phone: ${sanitizedPhone} → ${workingPhone}`
-      )
+      );
       await supabase
         .from('contacts')
         .update({ phone: workingPhone })
-        .eq('id', contact.id)
+        .eq('id', contact.id);
     }
 
     // Insert message into DB — field names MUST match the messages schema
@@ -433,14 +444,16 @@ export async function POST(request: Request) {
         reply_to_message_id: reply_to_message_id || null,
       })
       .select()
-      .single()
+      .single();
 
     if (msgError) {
-      console.error('Error inserting sent message:', msgError)
+      console.error('Erro ao inserir mensagem enviada:', msgError);
       return NextResponse.json(
-        { error: `Message sent to Meta but failed to save to DB: ${msgError.message}` },
+        {
+          error: `Message sent to Meta but failed to save to DB: ${msgError.message}`,
+        },
         { status: 500 }
-      )
+      );
     }
 
     // Update conversation
@@ -451,7 +464,7 @@ export async function POST(request: Request) {
         last_message_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
-      .eq('id', conversation_id)
+      .eq('id', conversation_id);
 
     // Pause any active Flow run for this contact — the agent stepping
     // in is the strongest "yield, human is here" signal. See PR #2
@@ -469,36 +482,39 @@ export async function POST(request: Request) {
         })
         .eq('account_id', accountId)
         .eq('contact_id', contact.id)
-        .eq('status', 'active')
+        .eq('status', 'active');
       if (pauseErr) {
         // Best-effort — log + continue. The agent's message already
         // landed at Meta; don't fail the response over a bookkeeping
         // miss. Worst case: a stale active run gets caught by the
         // stale-run cron sweep within 24h.
-        console.error('[flows] pause-on-agent-send failed:', pauseErr.message)
+        console.error(
+          '[fluxos] falha na pausa no envio do agente:',
+          pauseErr.message
+        );
       }
     } catch (err) {
       console.error(
-        '[flows] pause-on-agent-send threw:',
-        err instanceof Error ? err.message : err,
-      )
+        '[fluxos] pause-on-agent-send lançado:',
+        err instanceof Error ? err.message : err
+      );
     }
 
     return NextResponse.json({
       success: true,
       message_id: messageRecord.id,
       whatsapp_message_id: waMessageId,
-    })
+    });
   } catch (error) {
-    console.error('Error in WhatsApp send POST:', error)
+    console.error('Erro no WhatsApp enviar POST:', error);
     return NextResponse.json(
-      { error: 'Failed to send message' },
+      { error: 'Falha ao enviar mensagem' },
       { status: 500 }
-    )
+    );
   }
 }
 
-type SendSupabase = Awaited<ReturnType<typeof createClient>>
+type SendSupabase = Awaited<ReturnType<typeof createClient>>;
 
 /**
  * Return the contact's conversation in this account, creating one if it
@@ -511,16 +527,16 @@ async function findOrCreateConversation(
   supabase: SendSupabase,
   accountId: string,
   userId: string,
-  contactId: string,
+  contactId: string
 ) {
   const { data: existing } = await supabase
     .from('conversations')
     .select('*, contact:contacts(*)')
     .eq('account_id', accountId)
     .eq('contact_id', contactId)
-    .maybeSingle()
+    .maybeSingle();
 
-  if (existing) return existing
+  if (existing) return existing;
 
   const { data: created, error } = await supabase
     .from('conversations')
@@ -530,12 +546,15 @@ async function findOrCreateConversation(
       contact_id: contactId,
     })
     .select('*, contact:contacts(*)')
-    .single()
+    .single();
 
   if (error) {
-    console.error('Error creating conversation for contact send:', error.message)
-    return null
+    console.error(
+      'Erro ao criar conversa para envio de contato:',
+      error.message
+    );
+    return null;
   }
 
-  return created
+  return created;
 }

@@ -173,7 +173,7 @@ export function ImportModal({
 
     if (rows.length === 0) {
       toast.error(
-        'No valid rows found. Ensure CSV has a "phone" column header.'
+        'Nenhuma linha válida encontrada. Certifique-se de que o CSV tenha um cabeçalho de coluna "telefone".'
       );
       setParsedRows([]);
       setHasTagsColumn(false);
@@ -212,9 +212,9 @@ export function ImportModal({
         data: { session },
       } = await supabase.auth.getSession();
       const user = session?.user;
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error('Não autenticado');
       if (!accountId)
-        throw new Error('Your profile is not linked to an account.');
+        throw new Error('Seu perfil não está vinculado a uma conta.');
 
       let imported = 0;
       let skipped = 0;
@@ -336,7 +336,9 @@ export function ImportModal({
           tagIdByKey
         );
       } catch {
-        toast.warning('Contacts imported, but some tag assignments failed.');
+        toast.warning(
+          'Contatos importados, mas algumas atribuições de tags falharam.'
+        );
       }
 
       setResult({ imported, skipped, failed, tagsAssigned });
@@ -368,7 +370,8 @@ export function ImportModal({
         );
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Import failed';
+      const message =
+        err instanceof Error ? err.message : 'Falha na importação';
       toast.error(message);
     } finally {
       setImporting(false);
@@ -398,34 +401,34 @@ export function ImportModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="flex max-h-[min(90vh,720px)] flex-col gap-0 overflow-hidden border-border/80 bg-popover p-0 text-popover-foreground sm:max-w-2xl">
-        <div className="shrink-0 space-y-4 border-b border-border/80 px-6 pt-6 pb-5">
+      <DialogContent className="border-border/80 bg-popover text-popover-foreground flex max-h-[min(90vh,720px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
+        <div className="border-border/80 shrink-0 space-y-4 border-b px-6 pt-6 pb-5">
           <DialogHeader className="gap-1.5">
-            <DialogTitle className="text-lg text-popover-foreground">
-              Import Contacts
+            <DialogTitle className="text-popover-foreground text-lg">
+              Importar contatos
             </DialogTitle>
-            <DialogDescription className="leading-relaxed text-muted-foreground">
-              Upload a CSV with a required{' '}
-              <code className="rounded bg-muted px-1 py-0.5 text-[11px] text-muted-foreground">
+            <DialogDescription className="text-muted-foreground leading-relaxed">
+              Faça upload de um CSV com um arquivo obrigatório{' '}
+              <code className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-[11px]">
                 phone
               </code>{' '}
-              column. Optional:{' '}
-              <code className="rounded bg-muted px-1 py-0.5 text-[11px] text-muted-foreground">
+              coluna. Opcional:{' '}
+              <code className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-[11px]">
                 name
               </code>
               ,{' '}
-              <code className="rounded bg-muted px-1 py-0.5 text-[11px] text-muted-foreground">
+              <code className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-[11px]">
                 email
               </code>
               ,{' '}
-              <code className="rounded bg-muted px-1 py-0.5 text-[11px] text-muted-foreground">
+              <code className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-[11px]">
                 company
               </code>
               ,{' '}
-              <code className="rounded bg-muted px-1 py-0.5 text-[11px] text-muted-foreground">
+              <code className="bg-muted text-muted-foreground rounded px-1 py-0.5 text-[11px]">
                 tags
               </code>{' '}
-              (comma-separated; quote multi-tag cells).
+              (separados por vírgula; citar células com várias tags).
             </DialogDescription>
           </DialogHeader>
 
@@ -450,25 +453,25 @@ export function ImportModal({
                   <FileText className="text-primary size-5" />
                 </div>
                 <p
-                  className="max-w-full truncate px-2 text-sm font-medium text-popover-foreground"
+                  className="text-popover-foreground max-w-full truncate px-2 text-sm font-medium"
                   title={file.name}
                 >
                   {truncateFilename(file.name)}
                 </p>
-                <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-[11px] font-medium">
                   {parsedRows.length} row{parsedRows.length !== 1 ? 's' : ''}{' '}
                   ready
                 </span>
               </>
             ) : (
               <>
-                <div className="flex size-10 items-center justify-center rounded-lg bg-muted/80 ring-1 ring-border/80 transition-colors group-hover:bg-muted">
-                  <Upload className="size-5 text-muted-foreground group-hover:text-foreground" />
+                <div className="bg-muted/80 ring-border/80 group-hover:bg-muted flex size-10 items-center justify-center rounded-lg ring-1 transition-colors">
+                  <Upload className="text-muted-foreground group-hover:text-foreground size-5" />
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Click to choose a CSV file
+                <p className="text-muted-foreground text-sm">
+                  Clique para escolher um arquivo CSV
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-muted-foreground text-[11px]">
                   .csv up to your browser limit
                 </p>
               </>
@@ -488,12 +491,12 @@ export function ImportModal({
           {preview.length > 0 && !result && (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-                  Preview · first {preview.length}
+                <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.14em] uppercase">
+                  Visualizar · primeiro {preview.length}
                 </p>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {tagStats.rowsWithTags > 0 && (
-                    <span className="inline-flex items-center gap-1 rounded-md bg-muted/90 px-2 py-0.5 text-[11px] text-muted-foreground">
+                    <span className="bg-muted/90 text-muted-foreground inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px]">
                       <Tag className="text-primary/80 size-3" />
                       {tagStats.unique} tag{tagStats.unique !== 1 ? 's' : ''} ·{' '}
                       {tagStats.rowsWithTags} contact
@@ -503,59 +506,59 @@ export function ImportModal({
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-xl border border-border ring-1 ring-border/50">
+              <div className="border-border ring-border/50 overflow-hidden rounded-xl border ring-1">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[32rem] text-xs">
                     <thead>
-                      <tr className="border-b border-border bg-background/60">
-                        <th className="px-3 py-2 text-left font-medium whitespace-nowrap text-muted-foreground">
-                          Phone
+                      <tr className="border-border bg-background/60 border-b">
+                        <th className="text-muted-foreground px-3 py-2 text-left font-medium whitespace-nowrap">
+                          Telefone
                         </th>
-                        <th className="px-3 py-2 text-left font-medium whitespace-nowrap text-muted-foreground">
-                          Name
+                        <th className="text-muted-foreground px-3 py-2 text-left font-medium whitespace-nowrap">
+                          Nome
                         </th>
-                        <th className="px-3 py-2 text-left font-medium whitespace-nowrap text-muted-foreground">
-                          Email
+                        <th className="text-muted-foreground px-3 py-2 text-left font-medium whitespace-nowrap">
+                          E-mail
                         </th>
                         {previewHasCompany && (
-                          <th className="px-3 py-2 text-left font-medium whitespace-nowrap text-muted-foreground">
-                            Company
+                          <th className="text-muted-foreground px-3 py-2 text-left font-medium whitespace-nowrap">
+                            Empresa
                           </th>
                         )}
                         {previewHasTags && (
-                          <th className="px-3 py-2 text-left font-medium whitespace-nowrap text-muted-foreground">
-                            Tags
+                          <th className="text-muted-foreground px-3 py-2 text-left font-medium whitespace-nowrap">
+                            Etiquetas
                           </th>
                         )}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-border/70">
+                    <tbody className="divide-border/70 divide-y">
                       {preview.map((row, i) => (
                         <tr
                           key={i}
-                          className="bg-popover/40 transition-colors hover:bg-muted/30"
+                          className="bg-popover/40 hover:bg-muted/30 transition-colors"
                         >
-                          <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
+                          <td className="text-muted-foreground px-3 py-2 whitespace-nowrap">
                             <PreviewCell
                               value={row.phone}
                               mono
                               maxWidth="max-w-[7.5rem]"
                             />
                           </td>
-                          <td className="px-3 py-2 text-popover-foreground">
+                          <td className="text-popover-foreground px-3 py-2">
                             <PreviewCell
                               value={row.name || '—'}
                               maxWidth="max-w-[8.5rem]"
                             />
                           </td>
-                          <td className="px-3 py-2 text-muted-foreground">
+                          <td className="text-muted-foreground px-3 py-2">
                             <PreviewCell
                               value={row.email || '—'}
                               maxWidth="max-w-[10rem]"
                             />
                           </td>
                           {previewHasCompany && (
-                            <td className="px-3 py-2 text-muted-foreground">
+                            <td className="text-muted-foreground px-3 py-2">
                               <PreviewCell
                                 value={row.company || '—'}
                                 maxWidth="max-w-[7rem]"
@@ -578,17 +581,20 @@ export function ImportModal({
               </div>
 
               {parsedRows.length > PREVIEW_LIMIT && (
-                <p className="text-center text-[11px] text-muted-foreground">
-                  + {parsedRows.length - PREVIEW_LIMIT} more row
-                  {parsedRows.length - PREVIEW_LIMIT !== 1 ? 's' : ''} not shown
+                <p className="text-muted-foreground text-center text-[11px]">
+                  + {parsedRows.length - PREVIEW_LIMIT} mais linha
+                  {parsedRows.length - PREVIEW_LIMIT !== 1 ? 's' : ''} não
+                  mostrado
                 </p>
               )}
             </div>
           )}
 
           {result && (
-            <div className="rounded-xl border border-border bg-background/50 p-4">
-              <p className="text-sm font-medium text-popover-foreground">Import complete</p>
+            <div className="border-border bg-background/50 rounded-xl border p-4">
+              <p className="text-popover-foreground text-sm font-medium">
+                Importação concluída
+              </p>
               <div className="mt-3 flex flex-wrap gap-3">
                 {result.imported > 0 && (
                   <div className="text-primary flex items-center gap-1.5 text-sm">
@@ -620,14 +626,14 @@ export function ImportModal({
           )}
         </div>
 
-        <DialogFooter className="mt-0 shrink-0 gap-2 border-t border-border/80 bg-background/50 px-6 py-4 sm:justify-end">
+        <DialogFooter className="border-border/80 bg-background/50 mt-0 shrink-0 gap-2 border-t px-6 py-4 sm:justify-end">
           <Button
             type="button"
             variant="outline"
             onClick={() => handleOpenChange(false)}
             className="border-border text-muted-foreground hover:bg-muted"
           >
-            {result ? 'Close' : 'Cancel'}
+            {result ? 'Fechar' : 'Cancelar'}
           </Button>
           {!result && (
             <Button
@@ -637,7 +643,7 @@ export function ImportModal({
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {importing && <Loader2 className="size-4 animate-spin" />}
-              Import {parsedRows.length > 0 ? parsedRows.length : ''} contact
+              Importar {parsedRows.length > 0 ? parsedRows.length : ''} contact
               {parsedRows.length !== 1 ? 's' : ''}
             </Button>
           )}

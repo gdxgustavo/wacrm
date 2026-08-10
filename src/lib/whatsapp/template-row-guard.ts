@@ -36,15 +36,15 @@ export function isMessageTemplate(row: unknown): row is MessageTemplate {
  */
 export function assertMessageTemplate(
   row: unknown,
-  context: string,
+  context: string
 ): MessageTemplate {
   if (!isMessageTemplate(row)) {
     const id =
       row && typeof row === 'object' && 'id' in row
         ? String((row as { id: unknown }).id)
-        : '(unknown id)';
+        : '(ID desconhecido)';
     throw new Error(
-      `Malformed message_templates row ${id} in ${context} — missing required fields (id, user_id, name, body_text).`,
+      `A linha message_templates ${id} está malformada em ${context} — faltam campos obrigatórios (id, user_id, name, body_text).`
     );
   }
   return row;

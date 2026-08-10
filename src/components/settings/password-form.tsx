@@ -32,7 +32,7 @@ export function PasswordForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile?.email) {
-      toast.error('Cannot change password without a current email');
+      toast.error('Não é possível alterar a senha sem um e-mail atual');
       return;
     }
     if (next.length < MIN_PASSWORD) {
@@ -40,7 +40,7 @@ export function PasswordForm() {
       return;
     }
     if (next !== confirm) {
-      setConfirmError('New password and confirmation do not match');
+      setConfirmError('A nova senha e a confirmação não coincidem');
       return;
     }
     setConfirmError(null);
@@ -56,7 +56,7 @@ export function PasswordForm() {
         password: current,
       });
       if (signInError) {
-        toast.error('Current password is incorrect');
+        toast.error('A senha atual está incorreta');
         return;
       }
 
@@ -71,9 +71,9 @@ export function PasswordForm() {
       setCurrent('');
       setNext('');
       setConfirm('');
-      toast.success('Password updated');
+      toast.success('Senha atualizada');
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
+      const msg = err instanceof Error ? err.message : 'Erro desconhecido';
       toast.error(msg);
     } finally {
       setSaving(false);
@@ -83,13 +83,13 @@ export function PasswordForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-foreground">
-          <KeyRound className="size-4 text-primary" />
-          Password
+        <CardTitle className="text-foreground flex items-center gap-2">
+          <KeyRound className="text-primary size-4" />
+          Senha
         </CardTitle>
         <CardDescription className="text-muted-foreground">
-          Use at least {MIN_PASSWORD} characters. You will stay signed in on
-          this device after changing it.
+          Use pelo menos {MIN_PASSWORD} personagens. Você permanecerá conectado
+          neste dispositivo após alterá-lo.
         </CardDescription>
       </CardHeader>
 
@@ -97,7 +97,7 @@ export function PasswordForm() {
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="current-password" className="text-foreground">
-              Current password
+              Senha atual
             </Label>
             <Input
               id="current-password"
@@ -113,7 +113,7 @@ export function PasswordForm() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="new-password" className="text-foreground">
-                New password
+                Nova Senha
               </Label>
               <Input
                 id="new-password"
@@ -128,7 +128,7 @@ export function PasswordForm() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm-password" className="text-foreground">
-                Confirm new password
+                Confirme a nova senha
               </Label>
               <Input
                 id="confirm-password"
@@ -144,7 +144,7 @@ export function PasswordForm() {
           </div>
 
           {confirmError && (
-            <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+            <p className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border px-3 py-2 text-xs">
               {confirmError}
             </p>
           )}
@@ -157,10 +157,10 @@ export function PasswordForm() {
               {saving ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Updating…
+                  Atualizando…
                 </>
               ) : (
-                'Update password'
+                'Atualizar senha'
               )}
             </Button>
           </div>
