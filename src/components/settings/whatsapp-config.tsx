@@ -35,6 +35,7 @@ import {
   AccordionContent,
 } from '@/components/ui/accordion';
 import type { WhatsAppConfig as WhatsAppConfigType } from '@/types';
+import { EvolutionConfig } from './evolution-config';
 
 const MASKED_TOKEN = '••••••••••••••••';
 
@@ -56,6 +57,7 @@ export function WhatsAppConfig() {
   const [resetting, setResetting] = useState(false);
   const [showToken, setShowToken] = useState(false);
   const [config, setConfig] = useState<WhatsAppConfigType | null>(null);
+  const [provider, setProvider] = useState<'meta' | 'evolution' | null>(null);
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>('unknown');
   const [resetReason, setResetReason] = useState<ResetReason>(null);
@@ -114,6 +116,7 @@ export function WhatsAppConfig() {
 
         if (data) {
           setConfig(data);
+          setProvider(data.provider === 'evolution' ? 'evolution' : 'meta');
           setPhoneNumberId(data.phone_number_id || '');
           setWabaId(data.waba_id || '');
           setAccessToken(MASKED_TOKEN);
@@ -122,6 +125,7 @@ export function WhatsAppConfig() {
           setTokenEdited(false);
         } else {
           setConfig(null);
+          setProvider(null);
           setPhoneNumberId('');
           setWabaId('');
           setAccessToken('');
@@ -133,7 +137,7 @@ export function WhatsAppConfig() {
         setRegistrationProbe(null);
 
         // Then verify health via the API (decrypts token + pings Meta)
-        if (data) {
+        if (data && data.provider !== 'evolution') {
           try {
             const res = await fetch('/api/whatsapp/config', { method: 'GET' });
             const payload = await res.json();
@@ -158,7 +162,7 @@ export function WhatsAppConfig() {
             setConnectionStatus('disconnected');
           }
         } else {
-          setConnectionStatus('disconnected');
+          setConnectionStatus(data?.status === 'connected' ? 'connected' : 'disconnected');
           setResetReason(null);
           setStatusMessage('');
         }
@@ -409,12 +413,23 @@ export function WhatsAppConfig() {
 
   const showResetBanner = resetReason === 'token_corrupted';
 
+  if (provider === 'evolution') {
+    return (
+      <section className="animate-in fade-in-50 space-y-6 duration-200">
+        <SettingsPanelHead title="Conexão WhatsApp" description="Gerencie a conexão do WhatsApp usada por esta conta." />
+        <EvolutionConfig active />
+        <p className="text-muted-foreground text-xs">Para trocar para a API Oficial da Meta, desconecte primeiro a instância Evolution.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="animate-in fade-in-50 duration-200">
       <SettingsPanelHead
         title="Conexão WhatsApp"
         description="Conecte sua API Meta WhatsApp Business. Credenciais, webhook e etapas de configuração estão todos aqui."
       />
+      {!config && <div className="mb-6"><EvolutionConfig onActivated={() => setProvider('evolution')} /></div>}
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         {/* Main config form */}
         <div className="space-y-6">

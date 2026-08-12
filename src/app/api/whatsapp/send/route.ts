@@ -21,6 +21,7 @@ import {
 } from '@/lib/rate-limit';
 import type { MessageTemplate } from '@/types';
 import { isMessageTemplate } from '@/lib/whatsapp/template-row-guard';
+import { sendEvolutionMedia, sendEvolutionText } from '@/lib/whatsapp/evolution-api';
 
 export async function POST(request: Request) {
   try {
@@ -239,14 +240,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const accessToken = decrypt(config.access_token);
+    const isEvolution = config.provider === 'evolution';
+    if (isEvolution && !config.evolution_instance) {
+      return NextResponse.json({ error: 'Instância Evolution não configurada.' }, { status: 400 });
+    }
+    if (isEvolution && message_type === 'template') {
+      return NextResponse.json(
+        { error: 'Modelos oficiais estão disponíveis apenas na API Oficial da Meta.' },
+        { status: 400 }
+      );
+    }
+    const accessToken = isEvolution ? '' : decrypt(config.access_token);
 
     // Self-heal legacy CBC-encrypted tokens. Fire-and-forget: we
     // return from the send without waiting, so a failed upgrade just
     // means the next send tries again. The upgrade is idempotent —
     // concurrent sends both produce valid GCM ciphertexts of the same
     // plaintext, last write wins.
-    if (isLegacyFormat(config.access_token)) {
+    if (!isEvolution && isLegacyFormat(config.access_token)) {
       void supabase
         .from('whatsapp_config')
         .update({ access_token: encrypt(accessToken) })
@@ -332,6 +343,25 @@ export async function POST(request: Request) {
     }
 
     const attempt = async (phone: string): Promise<string> => {
+      if (isEvolution) {
+        if (isMediaKind) {
+          const result = await sendEvolutionMedia({
+            instanceName: config.evolution_instance,
+            to: phone,
+            kind: message_type as MediaKind,
+            url: media_url,
+            caption: content_text || undefined,
+            filename: filename || undefined,
+          });
+          return result.messageId;
+        }
+        const result = await sendEvolutionText({
+          instanceName: config.evolution_instance,
+          to: phone,
+          text: content_text,
+        });
+        return result.messageId;
+      }
       if (message_type === 'template') {
         const result = await sendTemplateMessage({
           phoneNumberId: config.phone_number_id,

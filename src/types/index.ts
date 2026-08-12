@@ -208,6 +208,9 @@ export interface MessageReaction {
 export interface WhatsAppConfig {
   id: string;
   user_id: string;
+  provider?: 'meta' | 'evolution';
+  evolution_instance?: string;
+  evolution_remote_jid?: string;
   phone_number_id: string;
   waba_id?: string;
   access_token: string;
