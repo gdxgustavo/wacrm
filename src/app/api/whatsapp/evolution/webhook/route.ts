@@ -5,17 +5,20 @@ function admin() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 }
 
+type EvolutionMessage = {
+  key?: { remoteJid?: string; fromMe?: boolean; id?: string };
+  pushName?: string;
+  messageType?: string;
+  messageTimestamp?: number | string;
+  message?: Record<string, unknown>;
+};
+
 type EvolutionPayload = {
   event?: string;
   instance?: string;
-  data?: {
+  data?: EvolutionMessage | EvolutionMessage[] | {
     state?: string;
     statusReason?: number;
-    key?: { remoteJid?: string; fromMe?: boolean; id?: string };
-    pushName?: string;
-    messageType?: string;
-    messageTimestamp?: number | string;
-    message?: Record<string, unknown>;
   };
 };
 
@@ -48,18 +51,30 @@ export async function POST(request: Request) {
   const db = admin();
   const { data: config } = await db.from('whatsapp_config').select('account_id,user_id').eq('provider', 'evolution').eq('evolution_instance', instance).maybeSingle();
   if (!config) return NextResponse.json({ received: true });
-  const event = String(body.event ?? '').toUpperCase().replace(/\./g, '_');
+  const event = String(body.event ?? '').toUpperCase().replace(/[.\-]/g, '_');
   if (event === 'CONNECTION_UPDATE') {
-    const state = String(body.data?.state ?? '').toLowerCase();
+    const stateData = !Array.isArray(body.data) ? body.data : undefined;
+    const state = String(stateData && 'state' in stateData ? stateData.state : '').toLowerCase();
     const connected = state === 'open' || state === 'connected';
     await db.from('whatsapp_config').update({ status: connected ? 'connected' : 'disconnected', connected_at: connected ? new Date().toISOString() : null }).eq('evolution_instance', instance);
     return NextResponse.json({ received: true });
   }
-  const data = body.data;
-  const key = data?.key;
-  if (event !== 'MESSAGES_UPSERT' || !data || !key || key.fromMe) return NextResponse.json({ received: true });
+  if (event !== 'MESSAGES_UPSERT' && event !== 'MESSAGES_SET') return NextResponse.json({ received: true });
+  const items = Array.isArray(body.data) ? body.data : body.data ? [body.data as EvolutionMessage] : [];
+  for (const data of items) await persistMessage(db, config, data, event === 'MESSAGES_SET');
+  return NextResponse.json({ received: true });
+}
+
+async function persistMessage(
+  db: ReturnType<typeof admin>,
+  config: { account_id: string; user_id: string },
+  data: EvolutionMessage,
+  historical: boolean
+) {
+  const key = data.key;
+  if (!key) return;
   const remoteJid = key.remoteJid ?? '';
-  if (!remoteJid.endsWith('@s.whatsapp.net')) return NextResponse.json({ received: true });
+  if (!remoteJid.endsWith('@s.whatsapp.net')) return;
   const phone = remoteJid.split('@')[0];
   const name = data.pushName || phone;
   let { data: contact } = await db.from('contacts').select('id').eq('account_id', config.account_id).eq('phone_normalized', phone).maybeSingle();
@@ -67,16 +82,24 @@ export async function POST(request: Request) {
     const inserted = await db.from('contacts').insert({ account_id: config.account_id, user_id: config.user_id, name, phone, phone_normalized: phone }).select('id').single();
     contact = inserted.data;
   }
-  if (!contact) return NextResponse.json({ received: true });
+  if (!contact) return;
   let { data: conversation } = await db.from('conversations').select('id,unread_count').eq('account_id', config.account_id).eq('contact_id', contact.id).maybeSingle();
   if (!conversation) {
     const inserted = await db.from('conversations').insert({ account_id: config.account_id, user_id: config.user_id, contact_id: contact.id, status: 'open', unread_count: 0 }).select('id,unread_count').single();
     conversation = inserted.data;
   }
-  if (!conversation) return NextResponse.json({ received: true });
+  if (!conversation) return;
   const parsed = textOf(data.message);
   const timestamp = Number(data.messageTimestamp || Date.now() / 1000);
-  await db.from('messages').upsert({ conversation_id: conversation.id, sender_type: 'customer', content_type: parsed.type, content_text: parsed.text, media_url: parsed.media ?? null, message_id: key.id, status: 'delivered', created_at: new Date(timestamp * 1000).toISOString() }, { onConflict: 'message_id' });
-  await db.from('conversations').update({ last_message_text: parsed.text, last_message_at: new Date().toISOString(), unread_count: (conversation.unread_count ?? 0) + 1, updated_at: new Date().toISOString() }).eq('id', conversation.id);
-  return NextResponse.json({ received: true });
+  const createdAt = new Date(timestamp * 1000).toISOString();
+  const { data: existing } = key.id
+    ? await db.from('messages').select('id').eq('message_id', key.id).maybeSingle()
+    : { data: null };
+  if (!existing) {
+    await db.from('messages').insert({ conversation_id: conversation.id, sender_type: key.fromMe ? 'agent' : 'customer', content_type: parsed.type, content_text: parsed.text, media_url: parsed.media ?? null, message_id: key.id, status: key.fromMe ? 'sent' : 'delivered', created_at: createdAt });
+  }
+  const currentLast = await db.from('conversations').select('last_message_at').eq('id', conversation.id).single();
+  if (!currentLast.data?.last_message_at || new Date(createdAt) >= new Date(currentLast.data.last_message_at)) {
+    await db.from('conversations').update({ last_message_text: parsed.text, last_message_at: createdAt, unread_count: !key.fromMe && !historical && !existing ? (conversation.unread_count ?? 0) + 1 : conversation.unread_count ?? 0, updated_at: new Date().toISOString() }).eq('id', conversation.id);
+  }
 }

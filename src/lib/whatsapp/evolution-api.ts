@@ -59,6 +59,12 @@ export async function createEvolutionInstance(args: {
       token: args.token,
       qrcode: true,
       integration: 'WHATSAPP-BAILEYS',
+      settings: {
+        syncFullHistory: true,
+        groupsIgnore: true,
+        readMessages: false,
+        readStatus: false,
+      },
       webhook: {
         enabled: true,
         url: args.webhookUrl,
@@ -66,6 +72,7 @@ export async function createEvolutionInstance(args: {
         events: [
           'QRCODE_UPDATED',
           'CONNECTION_UPDATE',
+          'MESSAGES_SET',
           'MESSAGES_UPSERT',
           'MESSAGES_UPDATE',
           'SEND_MESSAGE',
@@ -131,4 +138,3 @@ export async function sendEvolutionMedia(args: {
   const key = result.key as { id?: string } | undefined;
   return { messageId: key?.id ?? crypto.randomUUID() };
 }
-
