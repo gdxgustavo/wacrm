@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-type Status = { configured: boolean; connected?: boolean; state?: string; instance?: string; number?: string; provider?: string | null };
+type Status = { configured: boolean; connected?: boolean; state?: string; instance?: string; number?: string; provider?: string | null; webhookConfigured?: boolean };
 
 export function EvolutionConfig({ active = false }: { active?: boolean }) {
   const [status, setStatus] = useState<Status>({ configured: active });
@@ -58,6 +58,19 @@ export function EvolutionConfig({ active = false }: { active?: boolean }) {
     finally { setBusy(false); }
   }
 
+  async function repair() {
+    setBusy(true);
+    try {
+      const res = await fetch('/api/whatsapp/evolution', { method: 'PATCH' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Falha ao configurar o webhook');
+      toast.success('Webhook e sincronização configurados');
+      await refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Falha ao configurar o webhook');
+    } finally { setBusy(false); }
+  }
+
   const qrSrc = qr?.startsWith('data:') ? qr : qr ? `data:image/png;base64,${qr}` : null;
   return (
     <Card className={active ? 'border-primary/50' : undefined}>
@@ -71,9 +84,11 @@ export function EvolutionConfig({ active = false }: { active?: boolean }) {
         {qrSrc && !status.connected && <div className="flex justify-center rounded-lg bg-white p-4"><img src={qrSrc} alt="QR Code para conectar o WhatsApp" className="size-64 max-w-full" /></div>}
         {status.configured && !status.connected && !qrSrc && <p className="text-muted-foreground text-sm">Instância criada. Gere um novo QR Code para concluir a conexão.</p>}
         {status.connected && <p className="text-sm">WhatsApp conectado{status.number ? `: ${status.number}` : ''}. A caixa de entrada já pode usar esta instância.</p>}
+        {status.configured && status.webhookConfigured === false && <p className="text-sm text-amber-500">A conexão está ativa, mas o webhook ainda não foi confirmado. Clique em Reparar integração.</p>}
         <div className="flex flex-wrap gap-2">
           {!status.connected && <Button onClick={connect} disabled={busy}>{busy ? <Loader2 className="size-4 animate-spin" /> : <QrCode className="size-4" />}{status.configured ? 'Atualizar QR Code' : 'Conectar pelo QR Code'}</Button>}
           {status.configured && <Button variant="outline" onClick={() => void refresh()} disabled={busy}><RefreshCw className="size-4" /> Verificar situação</Button>}
+          {status.configured && <Button variant="outline" onClick={repair} disabled={busy}><RefreshCw className="size-4" /> Reparar integração</Button>}
           {status.configured && <Button variant="destructive" onClick={disconnect} disabled={busy}><Trash2 className="size-4" /> Desconectar</Button>}
         </div>
         {!status.connected && qrSrc && <p className="text-muted-foreground text-xs">No celular: WhatsApp → Aparelhos conectados → Conectar um aparelho.</p>}

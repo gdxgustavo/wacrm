@@ -90,6 +90,49 @@ export async function evolutionConnectionState(instanceName: string) {
   return request(`/instance/connectionState/${encodeURIComponent(instanceName)}`);
 }
 
+const EVOLUTION_EVENTS = [
+  'QRCODE_UPDATED',
+  'CONNECTION_UPDATE',
+  'MESSAGES_SET',
+  'MESSAGES_UPSERT',
+  'MESSAGES_UPDATE',
+  'SEND_MESSAGE',
+];
+
+export async function configureEvolutionWebhook(
+  instanceName: string,
+  webhookUrl: string
+) {
+  return request(`/webhook/set/${encodeURIComponent(instanceName)}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      enabled: true,
+      url: webhookUrl,
+      webhook_by_events: false,
+      webhookByEvents: false,
+      base64: true,
+      events: EVOLUTION_EVENTS,
+    }),
+  });
+}
+
+export async function configureEvolutionHistory(instanceName: string) {
+  return request(`/settings/set/${encodeURIComponent(instanceName)}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      syncFullHistory: true,
+      groupsIgnore: true,
+      alwaysOnline: false,
+      readMessages: false,
+      readStatus: false,
+    }),
+  });
+}
+
+export async function findEvolutionWebhook(instanceName: string) {
+  return request(`/webhook/find/${encodeURIComponent(instanceName)}`);
+}
+
 export async function deleteEvolutionInstance(instanceName: string) {
   return request(`/instance/delete/${encodeURIComponent(instanceName)}`, {
     method: 'DELETE',
