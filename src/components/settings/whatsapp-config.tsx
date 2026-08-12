@@ -502,7 +502,7 @@ export function WhatsAppConfig() {
                     }
                   >
                     {isRegistered
-                      ? 'Registered — Meta will deliver events to wacrm'
+                      ? 'Registrado — a Meta enviará eventos ao KenzyCRM'
                       : 'Not registered — Meta will not deliver events'}
                   </AlertTitle>
                 </div>
@@ -708,7 +708,7 @@ export function WhatsAppConfig() {
                     Meta Business Manager → Contas do WhatsApp → Números de
                     telefone → Verificação em duas etapas
                   </strong>
-                  e cole-o aqui para que o wacrm possa assinar o número - caso
+                  e cole-o aqui para que o KenzyCRM possa assinar o número - caso
                   contrário, o Meta roteia os eventos de entrada para o
                   aplicativo que o reivindicou pela última vez (o sintoma que
                   atinge os segundos números em um WABA compartilhado).{' '}

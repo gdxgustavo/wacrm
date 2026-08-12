@@ -248,7 +248,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            'Este número de telefone do WhatsApp já está vinculado a outra conta nesta instância. Cada número de telefone só pode ser conectado a um usuário wacrm.',
+            'Este número de telefone do WhatsApp já está vinculado a outra conta nesta instância. Cada número de telefone só pode ser conectado a uma conta do KenzyCRM.',
         },
         { status: 409 }
       );

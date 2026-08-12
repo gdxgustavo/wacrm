@@ -1,8 +1,8 @@
 {
-  "name": "wacrm",
+  "name": "kenzycrm",
   "version": "0.2.2",
   "private": true,
-  "description": "Self-hostable CRM template for WhatsApp built on Next.js and Supabase — shared inbox, contacts, sales pipelines, broadcasts, and no-code automations.",
+  "description": "KenzyCRM — CRM para atendimento, contatos, funis de vendas, disparos e automações pelo WhatsApp.",
   "license": "MIT",
   "author": "Arnas Donauskas",
   "homepage": "https://github.com/ArnasDon/wacrm",

@@ -20,10 +20,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'wacrm',
-    template: '%s — wacrm',
+    default: 'KenzyCRM',
+    template: '%s — KenzyCRM',
   },
-  description: 'Modelo de CRM auto-hospedado para WhatsApp.',
+  description: 'KenzyCRM — gestão de clientes e atendimento pelo WhatsApp.',
   robots: {
     index: false,
     follow: false,

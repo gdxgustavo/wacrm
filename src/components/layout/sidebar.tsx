@@ -173,7 +173,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <MessageSquare className="h-4 w-4" />
             </div>
             <span className="text-foreground text-sm font-semibold">
-              Modelo de CRM para WhatsApp
+              KenzyCRM
             </span>
           </Link>
           <button

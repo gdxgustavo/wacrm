@@ -1,4 +1,4 @@
-# wacrm — CRM Template for WhatsApp
+# KenzyCRM — CRM para WhatsApp
 
 > Self-hostable CRM template for WhatsApp® — shared inbox, contacts,
 > sales pipelines, broadcasts, and no-code automations. Fork it, brand

@@ -144,7 +144,7 @@ function SignupPageInner() {
           <CardDescription className="text-muted-foreground">
             {inviteToken
               ? 'Verifique seu e-mail e aceite o convite para ingressar na sua equipe.'
-              : 'Comece com o modelo de CRM para WhatsApp'}
+              : 'Comece agora com o KenzyCRM'}
           </CardDescription>
         </CardHeader>
         <CardContent>
