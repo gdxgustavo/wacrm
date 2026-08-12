@@ -229,7 +229,7 @@ export function WhatsAppConfig() {
 
       const res = await fetch('/api/whatsapp/config', {
         method: 'POST',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 

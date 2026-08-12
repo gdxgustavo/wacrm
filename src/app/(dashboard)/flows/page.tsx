@@ -132,7 +132,7 @@ export default function FlowsPage() {
     try {
       const res = await fetch('/api/flows', {
         method: 'POST',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: newName.trim(),
           trigger_type: 'keyword',
@@ -157,7 +157,7 @@ export default function FlowsPage() {
     try {
       const res = await fetch('/api/flows', {
         method: 'POST',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ template_slug: slug }),
       });
       if (!res.ok) {

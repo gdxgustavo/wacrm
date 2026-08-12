@@ -205,7 +205,7 @@ export function MembersTab() {
     try {
       const res = await fetch(`/api/account/members/${member.user_id}`, {
         method: 'PATCH',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: nextRole }),
       });
       if (!res.ok) {

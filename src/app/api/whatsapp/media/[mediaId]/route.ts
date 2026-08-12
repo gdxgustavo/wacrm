@@ -73,7 +73,7 @@ export async function GET(
     return new Response(new Uint8Array(buffer), {
       status: 200,
       headers: {
-        'Tipo de conteúdo':
+        'Content-Type':
           contentType || mediaInfo.mimeType || 'application/octet-stream',
         'Controle de cache': 'public, max-age=86400',
       },

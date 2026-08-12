@@ -483,7 +483,7 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
         try {
           const res = await fetch('/api/whatsapp/broadcast', {
             method: 'POST',
-            headers: { 'Tipo de conteúdo': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               recipients: apiRecipients,
               template_name: payload.template.name,

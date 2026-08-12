@@ -470,7 +470,7 @@ export function MessageThread({
       try {
         const res = await fetch('/api/whatsapp/send', {
           method: 'POST',
-          headers: { 'Tipo de conteúdo': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             conversation_id: conversation.id,
             message_type: 'text',
@@ -534,7 +534,7 @@ export function MessageThread({
       try {
         const res = await fetch('/api/whatsapp/send', {
           method: 'POST',
-          headers: { 'Tipo de conteúdo': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             conversation_id: conversation.id,
             message_type: payload.kind,
@@ -622,7 +622,7 @@ export function MessageThread({
       try {
         const res = await fetch('/api/whatsapp/send', {
           method: 'POST',
-          headers: { 'Tipo de conteúdo': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             conversation_id: conversation.id,
             message_type: 'template',
@@ -753,7 +753,7 @@ export function MessageThread({
       try {
         const res = await fetch('/api/whatsapp/react', {
           method: 'POST',
-          headers: { 'Tipo de conteúdo': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message_id: messageId, emoji }),
         });
         if (!res.ok) {

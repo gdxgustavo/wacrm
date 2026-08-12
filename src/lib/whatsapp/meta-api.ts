@@ -131,7 +131,7 @@ export async function registerPhoneNumber(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({ messaging_product: 'whatsapp', pin }),
@@ -252,7 +252,7 @@ export async function sendTextMessage(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(body),
@@ -327,7 +327,7 @@ export async function sendMediaMessage(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(body),
@@ -445,7 +445,7 @@ export async function sendTemplateMessage(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(body),
@@ -581,7 +581,7 @@ export async function submitMessageTemplate(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(payload),
@@ -633,7 +633,7 @@ export async function editMessageTemplate(
   const response = await fetch(`${META_API_BASE}/${metaTemplateId}`, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(body),
@@ -707,7 +707,7 @@ export async function sendReactionMessage(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
@@ -842,7 +842,7 @@ export async function sendInteractiveButtons(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(body),
@@ -986,7 +986,7 @@ export async function sendInteractiveList(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Tipo de conteúdo': 'application/json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(body),

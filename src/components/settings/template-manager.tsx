@@ -279,7 +279,7 @@ export function TemplateManager() {
         : '/api/whatsapp/templates/submit';
       const res = await fetch(url, {
         method: isEdit ? 'PATCH' : 'POST',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildSubmitPayload()),
       });
       const data = await res.json();

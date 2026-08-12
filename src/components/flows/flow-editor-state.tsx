@@ -326,7 +326,7 @@ export function FlowEditorProvider({
     try {
       const res = await fetch(`/api/flows/${initialFlow.id}`, {
         method: 'PUT',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: state.name,
           description: state.description || null,
@@ -367,7 +367,7 @@ export function FlowEditorProvider({
         }
         const res = await fetch(`/api/flows/${initialFlow.id}/activate`, {
           method: 'POST',
-          headers: { 'Tipo de conteúdo': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: next }),
         });
         if (!res.ok) {

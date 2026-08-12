@@ -317,7 +317,7 @@ function CreateKeyDialog({
     try {
       const res = await fetch('/api/account/api-keys', {
         method: 'POST',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: trimmed, scopes }),
       });
       const payload = await res.json().catch(() => ({}));

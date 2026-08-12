@@ -162,7 +162,7 @@ export async function GET(request: Request) {
       // Return challenge as plain text
       return new Response(challenge, {
         status: 200,
-        headers: { 'Tipo de conteúdo': 'text/plain' },
+        headers: { 'Content-Type': 'text/plain' },
       });
     }
 

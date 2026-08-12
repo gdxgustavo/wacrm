@@ -357,7 +357,7 @@ export function ContactDetailView({
     try {
       const res = await fetch('/api/whatsapp/send', {
         method: 'POST',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           // No conversation_id — the route find-or-creates one for this
           // contact, mirroring the inbox template-send payload otherwise.

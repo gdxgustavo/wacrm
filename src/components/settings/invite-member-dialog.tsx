@@ -113,7 +113,7 @@ export function InviteMemberDialog({
     try {
       const res = await fetch('/api/account/invitations', {
         method: 'POST',
-        headers: { 'Tipo de conteúdo': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           role,
           expiresInDays: Number(expiry),
