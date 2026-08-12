@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 type Status = { configured: boolean; connected?: boolean; state?: string; instance?: string; number?: string; provider?: string | null };
 
-export function EvolutionConfig({ active = false, onActivated }: { active?: boolean; onActivated?: () => void }) {
+export function EvolutionConfig({ active = false }: { active?: boolean }) {
   const [status, setStatus] = useState<Status>({ configured: active });
   const [qr, setQr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -39,7 +39,6 @@ export function EvolutionConfig({ active = false, onActivated }: { active?: bool
       if (!res.ok) throw new Error(data.error || 'Falha ao gerar QR Code');
       setQr(data.qrcode ?? null);
       setStatus({ configured: true, connected: false, state: 'connecting', instance: data.instance, provider: 'evolution' });
-      onActivated?.();
       if (!data.qrcode) toast.info('Instância criada. Clique em Atualizar QR Code.');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Falha ao conectar');
@@ -82,4 +81,3 @@ export function EvolutionConfig({ active = false, onActivated }: { active?: bool
     </Card>
   );
 }
-

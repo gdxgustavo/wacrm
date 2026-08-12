@@ -429,7 +429,7 @@ export function WhatsAppConfig() {
         title="Conexão WhatsApp"
         description="Conecte sua API Meta WhatsApp Business. Credenciais, webhook e etapas de configuração estão todos aqui."
       />
-      {!config && <div className="mb-6"><EvolutionConfig onActivated={() => setProvider('evolution')} /></div>}
+      {!config && <div className="mb-6"><EvolutionConfig /></div>}
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         {/* Main config form */}
         <div className="space-y-6">
