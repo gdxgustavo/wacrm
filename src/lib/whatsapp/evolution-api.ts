@@ -103,17 +103,32 @@ export async function configureEvolutionWebhook(
   instanceName: string,
   webhookUrl: string
 ) {
-  return request(`/webhook/set/${encodeURIComponent(instanceName)}`, {
-    method: 'POST',
-    body: JSON.stringify({
-      enabled: true,
-      url: webhookUrl,
-      webhook_by_events: false,
-      webhookByEvents: false,
-      base64: true,
-      events: EVOLUTION_EVENTS,
-    }),
-  });
+  const webhook = {
+    enabled: true,
+    url: webhookUrl,
+    webhook_by_events: false,
+    webhookByEvents: false,
+    byEvents: false,
+    base64: true,
+    events: EVOLUTION_EVENTS,
+  };
+  try {
+    // Evolution v2 installations validate this endpoint with an
+    // Instance DTO and therefore require the nested `webhook` property.
+    return await request(`/webhook/set/${encodeURIComponent(instanceName)}`, {
+      method: 'POST',
+      body: JSON.stringify({ webhook }),
+    });
+  } catch (error) {
+    // Older/community builds use the same path with a flat body.
+    if (!(error instanceof Error) || !/webhook|property|bad request/i.test(error.message)) {
+      throw error;
+    }
+    return request(`/webhook/set/${encodeURIComponent(instanceName)}`, {
+      method: 'POST',
+      body: JSON.stringify(webhook),
+    });
+  }
 }
 
 export async function configureEvolutionHistory(instanceName: string) {

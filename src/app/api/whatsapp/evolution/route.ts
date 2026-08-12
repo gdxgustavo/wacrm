@@ -41,8 +41,12 @@ export async function GET() {
     let webhookConfigured = false;
     try {
       const webhook = await findEvolutionWebhook(config.evolution_instance);
-      const saved = (webhook.webhook ?? webhook) as Record<string, unknown>;
-      webhookConfigured = Boolean(saved.enabled && saved.url);
+      const outer = (webhook.webhook ?? webhook) as Record<string, unknown>;
+      const saved = (outer.webhook ?? outer) as Record<string, unknown>;
+      webhookConfigured = Boolean(
+        saved.enabled !== false &&
+          (saved.url || saved.webhookUrl || outer.webhookUrl)
+      );
     } catch {
       // Connection status remains useful even when this Evolution version
       // does not expose /webhook/find.
