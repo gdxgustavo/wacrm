@@ -135,11 +135,14 @@ export async function configureEvolutionHistory(instanceName: string) {
   return request(`/settings/set/${encodeURIComponent(instanceName)}`, {
     method: 'POST',
     body: JSON.stringify({
+      rejectCall: false,
+      msgCall: '',
       syncFullHistory: true,
       groupsIgnore: true,
       alwaysOnline: false,
       readMessages: false,
       readStatus: false,
+      wavoipToken: '',
     }),
   });
 }
