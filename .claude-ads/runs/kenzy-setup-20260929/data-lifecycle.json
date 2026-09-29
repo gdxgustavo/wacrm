@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "lifecycle_id": "kenzy-lifecycle-20260929",
+  "classification": "internal",
+  "retention": {
+    "minimum_seconds": 0,
+    "mode": "operator-defined",
+    "delete_after": null,
+    "purpose": "Onboarding e governança de mídia paga para o engajamento ativo da Agência Kenzy",
+    "exception_reason": "Engajamento ativo sem data de término definida; revisar a cada renovação de escopo com o operador"
+  },
+  "encryption": {
+    "at_rest": "not-applicable",
+    "in_transit": "not-applicable",
+    "evidence_refs": [
+      "Perfil contém apenas dados de negócio não sensíveis (sem credenciais, PII de terceiros ou dados de conta ao vivo); armazenado como JSON local no diretório de trabalho da sessão"
+    ]
+  },
+  "access": {
+    "owner": "Gustavo <gdx.suporte@gmail.com>",
+    "authorized_roles": ["owner"],
+    "access_log_locator": null
+  },
+  "deletion": {
+    "status": "exception",
+    "method": "Exclusão manual dos arquivos do perfil pelo operador ao final do engajamento ou mediante solicitação",
+    "verification_required": true,
+    "verification_artifact_locator": null
+  },
+  "incident": {
+    "owner": "Gustavo <gdx.suporte@gmail.com>",
+    "reporting_channel": "Contato direto com o operador (sessão Claude Code)",
+    "status": "not-triggered",
+    "record_locator": null
+  }
+}

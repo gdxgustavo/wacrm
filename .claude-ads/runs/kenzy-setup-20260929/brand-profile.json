@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_type": "brand-profile",
+  "run_id": "kenzy-setup-20260929",
+  "created_at": "2026-09-29T14:00:00Z",
+  "brand_name": "Agência Kenzy",
+  "website_url": "https://agenciakenzy.com.br/",
+  "observations": [
+    {"field": "business_name", "value": "Agência Kenzy", "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"},
+    {"field": "personal_brand_instagram_handle", "value": "@mktcomsmithz", "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"},
+    {"field": "primary_offer", "value": "Serviços de marketing", "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"},
+    {"field": "stated_objective", "value": "Criar autoridade e fechar mais serviços", "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"},
+    {"field": "active_platforms", "value": ["linkedin", "meta", "tiktok"], "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"},
+    {"field": "ad_account_status", "value": "Nenhuma conta de anúncio criada ainda; precisam ser criadas do zero", "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"},
+    {"field": "campaign_pixel_history", "value": "Nenhum histórico existente", "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"},
+    {"field": "mutation_authority_holder", "value": "Gustavo (operador)", "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"},
+    {"field": "reporting_audience", "value": "Uso interno do próprio operador", "evidence_refs": ["operator-input:2026-09-29"], "confidence": "high"}
+  ],
+  "inferences": [
+    {"field": "geography", "value": "Brasil", "evidence_refs": ["Domínio do website: agenciakenzy.com.br"], "confidence": "medium", "approval_status": "pending"},
+    {"field": "business_model", "value": "Híbrido: agência de marketing + marca pessoal de conteúdo/consultoria", "evidence_refs": ["operator-input:2026-09-29", "Handle @mktcomsmithz fornecido junto com a agência"], "confidence": "medium", "approval_status": "pending"}
+  ],
+  "source_ids": ["operator-conversation-2026-09-29"],
+  "source_assets_authorized": false,
+  "missing_fields": [
+    "conversion_definition_specific_metric",
+    "monthly_ad_budget",
+    "per_platform_budget",
+    "cpa_or_roas_or_mer_target",
+    "regulated_category_confirmation",
+    "geography_confirmation",
+    "account_ids_after_creation"
+  ],
+  "status": "draft",
+  "data_lifecycle": {
+    "schema_version": "1.0.0",
+    "lifecycle_id": "kenzy-lifecycle-20260929",
+    "classification": "internal",
+    "retention": {
+      "minimum_seconds": 0,
+      "mode": "operator-defined",
+      "delete_after": null,
+      "purpose": "Onboarding e governança de mídia paga para o engajamento ativo da Agência Kenzy",
+      "exception_reason": "Engajamento ativo sem data de término definida; revisar a cada renovação de escopo com o operador"
+    },
+    "encryption": {
+      "at_rest": "not-applicable",
+      "in_transit": "not-applicable",
+      "evidence_refs": [
+        "Perfil contém apenas dados de negócio não sensíveis (sem credenciais, PII de terceiros ou dados de conta ao vivo); armazenado como JSON local no diretório de trabalho da sessão"
+      ]
+    },
+    "access": {
+      "owner": "Gustavo <gdx.suporte@gmail.com>",
+      "authorized_roles": ["owner"],
+      "access_log_locator": null
+    },
+    "deletion": {
+      "status": "exception",
+      "method": "Exclusão manual dos arquivos do perfil pelo operador ao final do engajamento ou mediante solicitação",
+      "verification_required": true,
+      "verification_artifact_locator": null
+    },
+    "incident": {
+      "owner": "Gustavo <gdx.suporte@gmail.com>",
+      "reporting_channel": "Contato direto com o operador (sessão Claude Code)",
+      "status": "not-triggered",
+      "record_locator": null
+    }
+  }
+}

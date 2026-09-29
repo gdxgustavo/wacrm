@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_type": "setup-profile",
+  "run_id": "kenzy-setup-20260929",
+  "created_at": "2026-09-29T14:00:00Z",
+  "business": {
+    "name": "Agência Kenzy",
+    "business_model": "Agência de marketing digital e marca pessoal de consultoria/conteúdo (@mktcomsmithz)",
+    "geographies": ["Brasil (assumido via domínio agenciakenzy.com.br — pendente de confirmação)"],
+    "regulated_categories": []
+  },
+  "objective": {
+    "primary": "Criar autoridade de marca e fechar mais contratos de serviços de marketing",
+    "conversion_definition": "Provisório, pendente de validação do operador: lead qualificado via formulário do site, DM/comentário estratégico no Instagram, ou reunião agendada",
+    "success_metrics": [
+      "Número de leads qualificados por mês (meta numérica a definir)",
+      "Número de reuniões/propostas fechadas (meta numérica a definir)",
+      "Crescimento de seguidores/engajamento como proxy de autoridade (métrica provisória)"
+    ]
+  },
+  "platforms": ["linkedin", "meta", "tiktok"],
+  "account_refs": [],
+  "data_sources": [
+    {"id": "linkedin-manual-setup", "kind": "manual", "platform": "linkedin", "status": "missing"},
+    {"id": "meta-manual-setup", "kind": "manual", "platform": "meta", "status": "missing"},
+    {"id": "tiktok-manual-setup", "kind": "manual", "platform": "tiktok", "status": "missing"}
+  ],
+  "privacy_class": "internal",
+  "mutation_authority": "none",
+  "approver_ids": ["Gustavo"],
+  "assumptions": [
+    "Geografia assumida como Brasil com base no domínio agenciakenzy.com.br — precisa confirmação do operador",
+    "Orçamento de mídia paga ainda não definido (\"veremos ainda sobre a parte de ADS\"); mutation_authority definido como 'none' até uma decisão de orçamento e política ser tomada",
+    "Nenhuma meta numérica de CPA/ROAS/MER definida — o operador está começando do zero",
+    "Definição de conversão é provisória e precisa ser validada pelo operador antes de qualquer auditoria ou plano",
+    "Nenhuma conta de anúncio existe ainda em LinkedIn, Meta ou TikTok — precisam ser criadas",
+    "Nenhum histórico de pixel/sinal de conversão existe (contas novas)"
+  ],
+  "data_lifecycle": {
+    "schema_version": "1.0.0",
+    "lifecycle_id": "kenzy-lifecycle-20260929",
+    "classification": "internal",
+    "retention": {
+      "minimum_seconds": 0,
+      "mode": "operator-defined",
+      "delete_after": null,
+      "purpose": "Onboarding e governança de mídia paga para o engajamento ativo da Agência Kenzy",
+      "exception_reason": "Engajamento ativo sem data de término definida; revisar a cada renovação de escopo com o operador"
+    },
+    "encryption": {
+      "at_rest": "not-applicable",
+      "in_transit": "not-applicable",
+      "evidence_refs": [
+        "Perfil contém apenas dados de negócio não sensíveis (sem credenciais, PII de terceiros ou dados de conta ao vivo); armazenado como JSON local no diretório de trabalho da sessão"
+      ]
+    },
+    "access": {
+      "owner": "Gustavo <gdx.suporte@gmail.com>",
+      "authorized_roles": ["owner"],
+      "access_log_locator": null
+    },
+    "deletion": {
+      "status": "exception",
+      "method": "Exclusão manual dos arquivos do perfil pelo operador ao final do engajamento ou mediante solicitação",
+      "verification_required": true,
+      "verification_artifact_locator": null
+    },
+    "incident": {
+      "owner": "Gustavo <gdx.suporte@gmail.com>",
+      "reporting_channel": "Contato direto com o operador (sessão Claude Code)",
+      "status": "not-triggered",
+      "record_locator": null
+    }
+  }
+}
